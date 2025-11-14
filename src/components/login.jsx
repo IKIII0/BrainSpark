@@ -1,39 +1,68 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
-export default function Login({ onLogin }) {
+export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  
+  const { login, loading, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      const from = location.state?.from?.pathname || '/';
+      navigate(from, { replace: true });
+    }
+  }, [isAuthenticated, navigate, location]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    
     if (!email || !password) {
       setError('Email dan kata sandi wajib diisi.');
       return;
     }
-    setLoading(true);
+
     try {
-      if (onLogin) {
-        await onLogin({ email, password });
-      } else {
-        await new Promise((r) => setTimeout(r, 600));
-        if (password.length < 6) {
-          throw new Error('Kata sandi minimal 6 karakter.');
-        }
-      }
+      await login({ email, password });
+      // Navigation will be handled by the useEffect above
     } catch (err) {
       setError(err?.message || 'Gagal masuk. Coba lagi.');
-    } finally {
-      setLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-100">
       <div className="w-full max-w-sm bg-white p-7 rounded-xl shadow-lg">
+        {/* Back Button */}
+        <div className="mb-4">
+          <Link 
+            to="/" 
+            className="inline-flex items-center text-gray-600 hover:text-gray-800 transition-colors"
+          >
+            <svg 
+              className="w-5 h-5 mr-2" 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                strokeWidth={2} 
+                d="M15 19l-7-7 7-7" 
+              />
+            </svg>
+            Kembali
+          </Link>
+        </div>
+        
         <h1 className="m-0 text-2xl font-bold text-gray-900">Masuk</h1>
         <p className="mt-1.5 mb-5 text-sm text-gray-500">Silakan masuk untuk melanjutkan.</p>
 
@@ -99,8 +128,16 @@ export default function Login({ onLogin }) {
         </form>
 
         <div className="mt-4 text-center text-sm text-gray-500">
-          Lupa kata sandi?
-          <button type="button" className="text-blue-600 hover:text-blue-700 ml-1">Reset</button>
+          <div className="mb-2">
+            Lupa kata sandi?
+            <button type="button" className="text-blue-600 hover:text-blue-700 ml-1">Reset</button>
+          </div>
+          <Link 
+            to="/" 
+            className="text-quiz-blue hover:text-quiz-blue/80 transition-colors"
+          >
+            Kembali ke Beranda
+          </Link>
         </div>
       </div>
     </div>
