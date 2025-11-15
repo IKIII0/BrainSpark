@@ -5,7 +5,6 @@ import Login from "./components/login";
 import Quiz from "./pages/Quiz";
 import Account from "./pages/Account";
 import ProtectedRoute from "./components/ProtectedRoute";
-import "./App.css";
 import "./index.css";
 
 function App() {
@@ -15,21 +14,21 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
-          <Route 
-            path="/quiz" 
+          <Route
+            path="/quiz"
             element={
               <ProtectedRoute>
                 <Quiz />
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/account" 
+          <Route
+            path="/account"
             element={
               <ProtectedRoute>
                 <Account />
               </ProtectedRoute>
-            } 
+            }
           />
         </Routes>
       </Router>
