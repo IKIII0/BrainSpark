@@ -38,13 +38,13 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-100">
-      <div className="w-full max-w-sm bg-white p-7 rounded-xl shadow-lg">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-quiz-light to-white">
+      <div className="w-full max-w-sm bg-slate-100 p-7 rounded-xl shadow-lg">
         {/* Back Button */}
         <div className="mb-4">
           <Link 
             to="/" 
-            className="inline-flex items-center text-gray-600 hover:text-gray-800 transition-colors"
+            className="inline-flex items-center text-gray-600 hover:text-gray-800 transition-colors hover:border-quiz-blue hover:border-1 hover:px-1 rounded-xl"
           >
             <svg 
               className="w-5 h-5 mr-2" 
@@ -132,12 +132,12 @@ export default function Login() {
             Lupa kata sandi?
             <button type="button" className="text-blue-600 hover:text-blue-700 ml-1">Reset</button>
           </div>
-          <Link 
+          {/* <Link 
             to="/" 
             className="text-quiz-blue hover:text-quiz-blue/80 transition-colors"
           >
             Kembali ke Beranda
-          </Link>
+          </Link> */}
         </div>
       </div>
     </div>

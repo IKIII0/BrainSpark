@@ -39,7 +39,9 @@ export const AuthProvider = ({ children }) => {
         throw new Error('Kata sandi minimal 6 karakter');
       }
 
-      // Create mock user data
+      // const isAdmin = credentials.email === 'admin@brainspark.com';
+      const isAdmin = credentials.email === 'tyoprasetyo2007@gmail.com';
+
       const userData = {
         id: 1,
         email: credentials.email,
@@ -47,7 +49,8 @@ export const AuthProvider = ({ children }) => {
         avatar: `https://ui-avatars.com/api/?name=${credentials.email.split('@')[0]}&background=3b82f6&color=fff`,
         // accept nim if provided in credentials (useful for demos or registration flow)
         nim: credentials?.nim,
-        joinDate: new Date().toISOString()
+        joinDate: new Date().toISOString(),
+        role: isAdmin ? 'admin' : 'user'
       };
 
       setUser(userData);
@@ -69,7 +72,8 @@ export const AuthProvider = ({ children }) => {
     login,
     logout,
     loading,
-    isAuthenticated: !!user
+    isAuthenticated: !!user,
+    isAdmin: user?.role === 'admin'
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

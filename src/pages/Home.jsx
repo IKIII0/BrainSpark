@@ -115,7 +115,7 @@ const Home = () => {
           </div>
 
           <div className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div className="text-center p-6 rounded-2xl hover:shadow-lg transition-shadow duration-200">
+            <div className="text-center p-6 rounded-2xl hover:shadow-xl transition-all duration-500 hover:-translate-y-2 hover:bg-gradient-to-br hover:from-quiz-blue/5 hover:to-transparent animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
               <div className="w-16 h-16 bg-quiz-yellow rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg
                   className="w-8 h-8 text-quiz-dark"
