@@ -28,7 +28,7 @@ const Navbar = ({ onNavigate }) => {
 
   const handleStartNow = () => {
     if (isAuthenticated) {
-      navigate('/quiz');
+      navigate('/ChooseQuiz');
     } else {
       navigate('/login');
     }
@@ -55,27 +55,41 @@ const Navbar = ({ onNavigate }) => {
           {/* Desktop Navigation */}
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-8">
-              <button
+              <Link 
+                to="/" 
+                onClick={() => handleNavigation('home')}
+                className="text-quiz-dark hover:text-quiz-blue transition-all duration-300 hover:scale-105">
+                Home
+              </Link>
+              <Link
+                to="/"
                 onClick={() => handleNavigation('features')}
                 className="text-quiz-dark hover:text-quiz-blue transition-all duration-300 hover:scale-105"
               >
                 Fitur
-              </button>
-              <button
+              </Link>
+              <Link
+                to="/"
                 onClick={() => handleNavigation('how-it-works')}
                 className="text-quiz-dark hover:text-quiz-blue transition-all duration-300 hover:scale-105"
               >
                 Cara Kerja
-              </button>
-              <button
+              </Link>
+              {/* <button
                 onClick={() => handleNavigation('pricing')}
                 className="text-quiz-dark hover:text-quiz-blue transition-all duration-300 hover:scale-105"
               >
                 Harga
-              </button>
-              
+              </button> */}
+                            
               {isAuthenticated ? (
                 <div className="flex items-center space-x-4">
+                  <button
+                    onClick={handleStartNow}
+                    className="bg-quiz-blue hover:bg-quiz-blue/90 text-white px-6 py-2 rounded-lg transition-colors duration-200"
+                  >
+                    Mulai Sekarang
+                  </button>
                   <Link
                     to="/account"
                     className="flex items-center space-x-2 text-quiz-dark hover:text-quiz-blue transition-colors"
@@ -85,7 +99,7 @@ const Navbar = ({ onNavigate }) => {
                       alt="Profile"
                       className="w-8 h-8 rounded-full"
                     />
-                    <span>{user?.name}</span>
+                    {/* <span>{user?.name}</span> */}
                   </Link>
                   <button
                     onClick={handleLogout}
@@ -98,16 +112,10 @@ const Navbar = ({ onNavigate }) => {
                 <div className="flex items-center space-x-4">
                   <Link
                     to="/login"
-                    className="text-quiz-dark hover:text-quiz-blue transition-colors"
+                    className="text-quiz-dark bg-quiz-blue hover:bg-quiz-blue/90 text-white px-6 py-2 rounded-lg transition-colors duration-200"
                   >
                     Masuk
-                  </Link>
-                  <button
-                    onClick={handleStartNow}
-                    className="bg-quiz-blue hover:bg-quiz-blue/90 text-white px-6 py-2 rounded-lg transition-colors duration-200"
-                  >
-                    Mulai Sekarang
-                  </button>
+                  </Link>                  
                 </div>
               )}
             </div>
@@ -158,9 +166,15 @@ const Navbar = ({ onNavigate }) => {
               >
                 Harga
               </button>
-              
+                            
               {isAuthenticated ? (
                 <>
+                  <button
+                    onClick={handleStartNow}
+                    className="w-full text-left bg-quiz-blue hover:bg-quiz-blue/90 text-white px-3 py-2 rounded-lg"
+                  >
+                    Mulai Sekarang
+                  </button>
                   <Link
                     to="/account"
                     onClick={() => setIsMenuOpen(false)}
@@ -188,13 +202,7 @@ const Navbar = ({ onNavigate }) => {
                     className="block w-full text-left text-quiz-dark hover:text-quiz-blue px-3 py-2 transition-all duration-300 hover:bg-quiz-light/30"
                   >
                     Masuk
-                  </Link>
-                  <button
-                    onClick={handleStartNow}
-                    className="w-full text-left bg-quiz-blue hover:bg-quiz-blue/90 text-white px-3 py-2 rounded-lg"
-                  >
-                    Mulai Sekarang
-                  </button>
+                  </Link>                  
                 </>
               )}
             </div>
