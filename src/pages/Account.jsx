@@ -117,6 +117,34 @@ const Account = () => {
                       readOnly
                     />
                   </div>
+                  <div className="bg-quiz-light/30 p-6 rounded-lg">
+                    <label className="block text-sm font-medium text-quiz-dark mb-2" >
+                      Nim
+                    </label>
+                    <input
+                      type="text"
+                      value={user?.nim ?? ''}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-quiz-blue focus:border-quiz-blue"
+                      readOnly
+                    />
+                    {!user?.nim && (
+                      <p className="text-sm text-gray-500 mt-2">NIM belum diisi</p>
+                    )}
+                  </div>
+                  <div className="bg-quiz-light/30 p-6 rounded-lg" >
+                    <label className="block text-sm font-medium text-quiz-dark mb-2" >
+                      Universitas 
+                    </label>
+                    <input 
+                      type="text"
+                      value={user?.university ?? ''}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-quiz-blue focus:border-quiz-blue"
+                      readOnly
+                    />
+                    {!user?.Universitas && (
+                      <p className="text-sm text-gray-500 mt-2">Universitas belum diisi</p>
+                    )}
+                  </div>
                 </div>
               </div>
             )}

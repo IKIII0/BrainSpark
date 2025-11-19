@@ -45,6 +45,8 @@ export const AuthProvider = ({ children }) => {
         email: credentials.email,
         name: credentials.email.split('@')[0],
         avatar: `https://ui-avatars.com/api/?name=${credentials.email.split('@')[0]}&background=3b82f6&color=fff`,
+        // accept nim if provided in credentials (useful for demos or registration flow)
+        nim: credentials?.nim,
         joinDate: new Date().toISOString()
       };
 
