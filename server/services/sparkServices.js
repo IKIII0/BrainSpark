@@ -12,22 +12,24 @@ async function getUserById(id) {
 }
 
 async function createUser(data) {
-  const { name_user, email_user, pass, nim, universitas, no_hp } = data;
+  const { nama_user, email_user, pass, nim, universitas, no_hp } = data;
+  console.log("Creating user with data:", { nama_user, email_user, pass, nim, universitas, no_hp });
   const result = await pool.query(
-    "INSERT INTO users (name_user, email_user, pass, nim, universitas, no_hp) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *",
-    [name_user, email_user, pass, nim, universitas, no_hp]
+    "INSERT INTO users (nama_user, email_user, pass, nim, universitas, no_hp) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *",
+    [nama_user, email_user, pass, nim, universitas, no_hp]
   );
+  console.log("Created user:", result.rows[0]);
   return result.rows[0];
 }
 
 async function updateUser(id, data) {
-  const { name_user, email_user, pass, nim, universitas, no_hp } = data;
+  const { nama_user, email_user, pass, nim, universitas, no_hp } = data;
   const result = await pool.query(
     `UPDATE users 
-    SET name_user = $1, email_user = $2, pass = $3, nim = $4, universitas = $5, no_hp = $6
+    SET nama_user = $1, email_user = $2, pass = $3, nim = $4, universitas = $5, no_hp = $6
     WHERE id = $7 
     RETURNING *`,
-    [name_user, email_user, pass, nim, universitas, no_hp, id]
+    [nama_user, email_user, pass, nim, universitas, no_hp, id]
   );
   return result.rows[0];
 }

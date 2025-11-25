@@ -161,7 +161,7 @@ async function login(req, res) {
       data: {
         id: user.id,
         email: user.email_user,
-        nama_user: user.name_user,
+        nama_user: user.nama_user,
         nim: user.nim,
         universitas: user.universitas,
         no_hp: user.no_hp,
