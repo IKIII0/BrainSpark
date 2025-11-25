@@ -49,40 +49,40 @@ async function login(email, password) {
 }
 
 // Materi service
-async function getAllUsers() {
-  const result = await pool.query("SELECT * FROM users ORDER BY id ASC");
+async function getAllMateri() {
+  const result = await pool.query("SELECT * FROM materi ORDER BY id ASC");
   return result.rows;
 }
 
-async function getUserById(id) {
-  const result = await pool.query("SELECT * FROM users WHERE id = $1", [id]);
+async function getMateriById(id) {
+  const result = await pool.query("SELECT * FROM materi WHERE id = $1", [id]);
   return result.rows[0];
 }
 
-async function createUser(data) {
-  const { name_user, email_user, pass, nim, universitas, no_hp } = data;
+async function createMateri(data) {
+  const { nama_materi, level, deskripsi, jumlah_soal } = data;
   const result = await pool.query(
-    "INSERT INTO users (name_user, email_user, pass, nim, universitas, no_hp) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *",
-    [name_user, email_user, pass, nim, universitas, no_hp]
+    "INSERT INTO materi (nama_materi, level, deskripsi, jumlah_soal) VALUES ($1,$2,$3,$4) RETURNING *",
+    [nama_materi, level, deskripsi, jumlah_soal]
   );
   return result.rows[0];
 }
 
-async function updateUser(id, data) {
-  const { name_user, email_user, pass, nim, universitas, no_hp } = data;
+async function updateMateri(id, data) {
+  const { nama_materi, level, deskripsi, jumlah_soal } = data;
   const result = await pool.query(
-    `UPDATE users 
-    SET name_user = $1, email_user = $2, pass = $3, nim = $4, universitas = $5, no_hp = $6
-    WHERE id = $7 
+    `UPDATE materi 
+    SET nama_materi = $1, level = $2, deskripsi = $3, jumlah_soal = $4
+    WHERE id = $5 
     RETURNING *`,
-    [name_user, email_user, pass, nim, universitas, no_hp, id]
+    [nama_materi, level, deskripsi, jumlah_soal, id]
   );
   return result.rows[0];
 }
 
-async function deleteUser(id) {
+async function deleteMateri(id) {
   const result = await pool.query(
-    "DELETE FROM users WHERE id = $1 RETURNING *",
+    "DELETE FROM materi WHERE id = $1 RETURNING *",
     [id]
   );
   return result.rows[0];
@@ -95,4 +95,9 @@ module.exports = {
   updateUser,
   deleteUser,
   login,
+  getAllMateri,
+  getMateriById,
+  createMateri,
+  updateMateri,
+  deleteMateri,
 };

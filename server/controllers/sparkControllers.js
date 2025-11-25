@@ -1,5 +1,6 @@
 const eventsService = require("../services/sparkServices");
 
+// USERS CONTROLLERS
 async function getAllUsers(req, res) {
   try {
     const users = await eventsService.getAllUsers();
@@ -46,10 +47,10 @@ async function getUserById(req, res) {
 async function createUser(req, res) {
   try {
     const { email, password } = req.body;
-    
+
     if (Object.keys(req.body).length === 2 && email && password) {
       const user = await eventsService.login(email, password);
-      
+
       if (!user) {
         return res.status(401).json({
           status: "error",
@@ -57,7 +58,7 @@ async function createUser(req, res) {
           message: "Invalid email or password",
         });
       }
-      
+
       return res.status(200).json({
         status: "success",
         code: 200,
@@ -72,7 +73,7 @@ async function createUser(req, res) {
         },
       });
     }
-    
+
     // Otherwise, create new user
     const newUser = await eventsService.createUser(req.body);
     res.status(201).json({
@@ -144,7 +145,7 @@ async function login(req, res) {
   try {
     const { email, password } = req.body;
     const user = await eventsService.login(email, password);
-    
+
     if (!user) {
       return res.status(401).json({
         status: "error",
@@ -152,7 +153,7 @@ async function login(req, res) {
         message: "Invalid email or password",
       });
     }
-    
+
     res.status(200).json({
       status: "success",
       code: 200,
@@ -175,6 +176,120 @@ async function login(req, res) {
   }
 }
 
+// MATERI CONTROLLERS
+async function getAllMateri(req, res) {
+  try {
+    const materi = await eventsService.getAllMateri();
+    res.status(200).json({
+      status: "success",
+      code: 200,
+      message: "Materi retrieved successfully",
+      data: materi,
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: "error",
+      code: 500,
+      message: err.message,
+    });
+  }
+}
+async function getMateriById(req, res) {
+  try {
+    const materi = await eventsService.getMateriById(req.params.id);
+    if (!materi) {
+      return res.status(404).json({
+        status: "error",
+        code: 404,
+        message: "Materi not found",
+      });
+    }
+    res.status(200).json({
+      status: "success",
+      code: 200,
+      message: "Materi retrieved successfully",
+      data: materi,
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: "error",
+      code: 500,
+      message: err.message,
+    });
+  }
+}
+
+async function createMateri(req, res) {
+  try {
+    const newMateri = await eventsService.createMateri(req.body);
+    res.status(201).json({
+      status: "success",
+      code: 201,
+      message: "Materi created successfully",
+      data: newMateri,
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: "error",
+      code: 500,
+      message: err.message,
+    });
+  }
+}
+
+async function updateMateri(req, res) {
+  try {
+    const updatedMateri = await eventsService.updateMateri(
+      req.params.id,
+      req.body
+    );
+    if (!updatedMateri) {
+      return res.status(404).json({
+        status: "error",
+        code: 404,
+        message: "Materi not found",
+      });
+    }
+    res.status(200).json({
+      status: "success",
+      code: 200,
+      message: "Materi updated successfully",
+      data: updatedMateri,
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: "error",
+      code: 500,
+      message: err.message,
+    });
+  }
+}
+
+async function deleteMateri(req, res) {
+  try {
+    const deletedMateri = await eventsService.deleteMateri(req.params.id);
+    if (!deletedMateri) {
+      return res.status(404).json({
+        status: "error",
+        code: 404,
+        message: "Materi not found",
+      });
+    }
+    res.status(200).json({
+      status: "success",
+      code: 200,
+      message: "Materi deleted successfully",
+      data: deletedMateri,
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: "error",
+      code: 500,
+      message: err.message,
+    });
+  }
+}
+
 module.exports = {
   getAllUsers,
   getUserById,
@@ -182,4 +297,9 @@ module.exports = {
   updateUser,
   deleteUser,
   login,
+  getAllMateri,
+  getMateriById,
+  createMateri,
+  updateMateri,
+  deleteMateri,
 };
