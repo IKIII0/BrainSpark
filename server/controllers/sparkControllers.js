@@ -1,6 +1,43 @@
 const eventsService = require("../services/sparkServices");
 const { isAdmin } = require("../middleware/adminAuth");
 
+// ADMIN CONTROLLERS
+async function getAllAdmins(req, res) {
+  try {
+    const admins = await eventsService.getAllAdmins();
+    res.status(200).json({
+      status: "success",
+      code: 200,
+      message: "Admins retrieved successfully",
+      data: admins,
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: "error",
+      code: 500,
+      message: err.message,
+    });
+  }
+}
+
+async function createAdmin(req, res) {
+  try {
+    const newAdmin = await eventsService.createAdmin(req.body);
+    res.status(201).json({
+      status: "success",
+      code: 201,
+      message: "Admin created successfully",
+      data: newAdmin,
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: "error",
+      code: 500,
+      message: err.message,
+    });
+  }
+}
+
 // USERS CONTROLLERS
 async function getAllUsers(req, res) {
   try {
@@ -166,6 +203,7 @@ async function login(req, res) {
         nim: user.nim,
         universitas: user.universitas,
         no_hp: user.no_hp,
+        isAdmin: user.isAdmin || false,
       },
     });
   } catch (err) {
@@ -222,9 +260,19 @@ async function getMateriById(req, res) {
 
 async function createMateri(req, res) {
   try {
-    // Check if admin
-    const adminEmail = 'admin@brainspark.com';
-    if (req.headers['x-user-email'] !== adminEmail) {
+    // Check if admin from admin table
+    const adminEmail = req.headers['x-user-email'];
+    if (!adminEmail) {
+      return res.status(403).json({
+        status: "error",
+        code: 403,
+        message: "Admin access required",
+      });
+    }
+
+    // Verify if this email exists in admin table
+    const admin = await eventsService.getAdminByEmail(adminEmail);
+    if (!admin) {
       return res.status(403).json({
         status: "error",
         code: 403,
@@ -278,9 +326,19 @@ async function updateMateri(req, res) {
 
 async function deleteMateri(req, res) {
   try {
-    // Check if admin
-    const adminEmail = 'admin@brainspark.com';
-    if (req.headers['x-user-email'] !== adminEmail) {
+    // Check if admin from admin table
+    const adminEmail = req.headers['x-user-email'];
+    if (!adminEmail) {
+      return res.status(403).json({
+        status: "error",
+        code: 403,
+        message: "Admin access required",
+      });
+    }
+
+    // Verify if this email exists in admin table
+    const admin = await eventsService.getAdminByEmail(adminEmail);
+    if (!admin) {
       return res.status(403).json({
         status: "error",
         code: 403,
@@ -312,12 +370,19 @@ async function deleteMateri(req, res) {
 }
 
 module.exports = {
+  // Admin controllers
+  getAllAdmins,
+  createAdmin,
+  
+  // User controllers
   getAllUsers,
   getUserById,
   createUser,
   updateUser,
   deleteUser,
   login,
+  
+  // Materi controllers
   getAllMateri,
   getMateriById,
   createMateri,

@@ -1,6 +1,44 @@
 const pool = require("../config/db");
 const passwordUtils = require("../utils/passwordUtils");
 
+// Admin Services
+async function getAllAdmins() {
+  const result = await pool.query("SELECT * FROM admin ORDER BY nama_admin ASC");
+  return result.rows;
+}
+
+async function getAdminByEmail(email) {
+  const result = await pool.query("SELECT * FROM admin WHERE email = $1", [email]);
+  return result.rows[0];
+}
+
+async function createAdmin(data) {
+  const { nama_admin, email, pass } = data;
+  
+  // Hash password before saving
+  const hashedPassword = await passwordUtils.hashPassword(pass);
+  
+  const result = await pool.query(
+    "INSERT INTO admin (nama_admin, email, pass) VALUES ($1, $2, $3) RETURNING *",
+    [nama_admin, email, hashedPassword]
+  );
+  return result.rows[0];
+}
+
+async function loginAdmin(email, pass) {
+  const admin = await getAdminByEmail(email);
+  if (!admin) {
+    return null;
+  }
+  
+  const isPasswordValid = await passwordUtils.verifyPassword(pass, admin.pass);
+  if (!isPasswordValid) {
+    return null;
+  }
+  
+  return admin;
+}
+
 // User Services
 async function getAllUsers() {
   const result = await pool.query("SELECT * FROM users ORDER BY id ASC");
@@ -55,17 +93,41 @@ async function deleteUser(id) {
 }
 
 async function login(email, password) {
-  // First get user by email
-  const result = await pool.query(
+  // First check if it's an admin
+  const adminResult = await pool.query(
+    "SELECT * FROM admin WHERE email = $1",
+    [email]
+  );
+  
+  if (adminResult.rows.length > 0) {
+    const admin = adminResult.rows[0];
+    
+    // Verify password
+    const isPasswordValid = await passwordUtils.verifyPassword(password, admin.pass);
+    
+    if (isPasswordValid) {
+      // Return admin data with isAdmin flag
+      return {
+        ...admin,
+        isAdmin: true,
+        id: admin.email, // Use email as ID for admin
+        nama_user: admin.nama_admin,
+        email_user: admin.email
+      };
+    }
+  }
+  
+  // If not admin, check regular users
+  const userResult = await pool.query(
     "SELECT * FROM users WHERE email_user = $1",
     [email]
   );
   
-  if (result.rows.length === 0) {
+  if (userResult.rows.length === 0) {
     return null; // User not found
   }
   
-  const user = result.rows[0];
+  const user = userResult.rows[0];
   
   // Verify password
   const isPasswordValid = await passwordUtils.verifyPassword(password, user.pass);
@@ -74,7 +136,11 @@ async function login(email, password) {
     return null; // Password incorrect
   }
   
-  return user; // Login successful
+  // Return user data with isAdmin flag
+  return {
+    ...user,
+    isAdmin: false
+  };
 }
 
 // Materi service
@@ -118,12 +184,21 @@ async function deleteMateri(id) {
 }
 
 module.exports = {
+  // Admin services
+  getAllAdmins,
+  getAdminByEmail,
+  createAdmin,
+  loginAdmin,
+  
+  // User services
   getAllUsers,
   getUserById,
   createUser,
   updateUser,
   deleteUser,
   login,
+  
+  // Materi services
   getAllMateri,
   getMateriById,
   createMateri,

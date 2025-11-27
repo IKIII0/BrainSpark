@@ -1,5 +1,7 @@
 const express = require("express");
 const {
+  getAllAdmins,
+  createAdmin,
   getAllUsers,
   getUserById,
   createUser,
@@ -13,6 +15,10 @@ const {
   deleteMateri,
 } = require("../controllers/sparkControllers");
 const router = express.Router();
+
+// Admin Routes
+router.get("/admin", getAllAdmins);
+router.post("/admin", createAdmin);
 
 // User Routes
 router.get("/users", getAllUsers);

@@ -42,7 +42,7 @@ export const AuthProvider = ({ children }) => {
         university: response.universitas || credentials?.university || '',
         no_hp: response.no_hp || credentials?.no_hp || '',
         joinDate: new Date().toISOString(),
-        role: 'user'
+        isAdmin: response.isAdmin || false
       };
 
       setUser(userData);
@@ -80,7 +80,7 @@ export const AuthProvider = ({ children }) => {
     logout,
     loading,
     isAuthenticated: !!user,
-    isAdmin: user?.email === 'admin@brainspark.com' // Check specific admin email
+    isAdmin: user?.isAdmin || false // Use backend isAdmin flag
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
