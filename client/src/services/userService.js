@@ -1,11 +1,11 @@
-import axios from 'axios';
+import axios from "axios";
 
 const API_BASE_URL = "https://brain-spark-be.vercel.app/api";
 
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
@@ -13,10 +13,10 @@ export const userService = {
   // Get all users to find current user
   async getAllUsers() {
     try {
-      const response = await api.get('/users');
+      const response = await api.get("/users");
       return response.data.data; // Access the data array from response
     } catch (error) {
-      console.error('Error fetching all users:', error);
+      console.error("Error fetching all users:", error);
       throw error;
     }
   },
@@ -24,28 +24,28 @@ export const userService = {
   // Get complete user profile from database
   async getUserProfile(userId) {
     try {
-      console.log('Fetching user profile for ID:', userId);
-      
+      console.log("Fetching user profile for ID:", userId);
+
       // Get all users and find current user
-      const usersResponse = await api.get('/users');
-      console.log('API response:', usersResponse.data);
-      
+      const usersResponse = await api.get("/users");
+      console.log("API response:", usersResponse.data);
+
       // Access the data array from the response
       const users = usersResponse.data.data;
-      console.log('Users array:', users);
-      
+      console.log("Users array:", users);
+
       // Find user by ID or email
-      const user = users.find(u => u.id == userId || u.email_user === userId);
-        
+      const user = users.find((u) => u.id == userId || u.email_user === userId);
+
       if (user) {
-        console.log('Found user:', user);
+        console.log("Found user:", user);
         return user;
       } else {
-        console.log('User not found with ID:', userId);
+        console.log("User not found with ID:", userId);
         return null;
       }
     } catch (error) {
-      console.error('Error fetching user profile:', error);
+      console.error("Error fetching user profile:", error);
       throw error;
     }
   },
@@ -56,14 +56,14 @@ export const userService = {
       const response = await api.get(`/users/${userId}/stats`);
       return response.data;
     } catch (error) {
-      console.error('Error fetching user stats:', error);
+      console.error("Error fetching user stats:", error);
       // Return default stats if API fails
       return {
         quizzesTaken: 0,
         quizzesCreated: 0,
         totalScore: 0,
         averageScore: 0,
-        streak: 0
+        streak: 0,
       };
     }
   },
@@ -74,9 +74,9 @@ export const userService = {
       const response = await api.get(`/users/${userId}/quizzes`);
       return response.data;
     } catch (error) {
-      console.error('Error fetching quiz history:', error);
+      console.error("Error fetching quiz history:", error);
       // Return empty array if API fails
       return [];
     }
-  }
+  },
 };

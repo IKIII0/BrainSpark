@@ -143,8 +143,8 @@ async function deleteUser(req, res) {
 
 async function login(req, res) {
   try {
-    const { email, password } = req.body;
-    const user = await eventsService.login(email, password);
+    const { email_user, pass } = req.body;
+    const user = await eventsService.login(email_user, pass);
 
     if (!user) {
       return res.status(401).json({
