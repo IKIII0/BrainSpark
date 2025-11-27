@@ -1,4 +1,5 @@
 const eventsService = require("../services/sparkServices");
+const { isAdmin } = require("../middleware/adminAuth");
 
 // USERS CONTROLLERS
 async function getAllUsers(req, res) {
@@ -221,6 +222,16 @@ async function getMateriById(req, res) {
 
 async function createMateri(req, res) {
   try {
+    // Check if admin
+    const adminEmail = 'admin@brainspark.com';
+    if (req.headers['x-user-email'] !== adminEmail) {
+      return res.status(403).json({
+        status: "error",
+        code: 403,
+        message: "Admin access required",
+      });
+    }
+    
     const newMateri = await eventsService.createMateri(req.body);
     res.status(201).json({
       status: "success",
@@ -267,6 +278,16 @@ async function updateMateri(req, res) {
 
 async function deleteMateri(req, res) {
   try {
+    // Check if admin
+    const adminEmail = 'admin@brainspark.com';
+    if (req.headers['x-user-email'] !== adminEmail) {
+      return res.status(403).json({
+        status: "error",
+        code: 403,
+        message: "Admin access required",
+      });
+    }
+    
     const deletedMateri = await eventsService.deleteMateri(req.params.id);
     if (!deletedMateri) {
       return res.status(404).json({

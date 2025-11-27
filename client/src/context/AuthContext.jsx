@@ -80,7 +80,7 @@ export const AuthProvider = ({ children }) => {
     logout,
     loading,
     isAuthenticated: !!user,
-    isAdmin: user?.role === 'admin'
+    isAdmin: user?.email === 'admin@brainspark.com' // Check specific admin email
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

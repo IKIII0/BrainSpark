@@ -1,48 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { materiService } from '../services/materiService';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
-const initialMaterials = [
-  {
-    id: 'dasar-pemrograman',
-    title: 'Dasar Pemrograman',
-    description: 'Variabel, tipe data, dan perulangan.',
-    level: 'Pemula',
-    questionsCount: 15,
-    color: 'from-quiz-blue to-quiz-blue/80',
-  },
-  {
-    id: 'organisasi-komputer',
-    title: 'Organisasi Arsitektur Komputer',
-    description: 'Struktur komputer, CPU, memori, dan instruksi.',
-    level: 'Menengah',
-    questionsCount: 12,
-    color: 'from-quiz-brown to-quiz-brown/80',
-  },
-  {
-    id: 'struktur-data',
-    title: 'Struktur Data',
-    description: 'Array, linked list, stack, queue, dan tree dasar.',
-    level: 'Menengah',
-    questionsCount: 20,
-    color: 'from-quiz-yellow to-quiz-yellow/80',
-  },
-  {
-    id: 'basis-data',
-    title: 'Basis Data',
-    description: 'Konsep tabel, relasi, dan dasar SQL.',
-    level: 'Pemula',
-    questionsCount: 10,
-    color: 'from-green-500 to-green-600',
-  },
-];
-
 const ChooseQuiz = () => {
   const navigate = useNavigate();
-  const { isAdmin } = useAuth();
-  const [materials, setMaterials] = useState(initialMaterials);
+  const { isAdmin, user } = useAuth();
+  const [materials, setMaterials] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [newMaterial, setNewMaterial] = useState({
     title: '',
     description: '',
@@ -50,6 +18,35 @@ const ChooseQuiz = () => {
     questionsCount: 10,
     color: 'from-quiz-blue to-quiz-blue/80'
   });
+
+  // Fetch materi from database
+  useEffect(() => {
+    const fetchMateri = async () => {
+      try {
+        setLoading(true);
+        const materiData = await materiService.getAllMateri();
+        
+        // Format data for frontend
+        const formattedMaterials = materiData.map(materi => ({
+          id: materi.id.toString(),
+          title: materi.nama_materi,
+          description: materi.deskripsi || 'Deskripsi materi',
+          level: materi.level || 'Pemula',
+          questionsCount: materi.jumlah_soal || 10,
+          color: 'from-quiz-blue to-quiz-blue/80'
+        }));
+        
+        setMaterials(formattedMaterials);
+      } catch (err) {
+        console.error('Error fetching materi:', err);
+        setError('Gagal memuat materi. Silakan coba lagi.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMateri();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -59,31 +56,60 @@ const ChooseQuiz = () => {
     }));
   };
 
-  const handleAddMaterial = (e) => {
+  const handleAddMaterial = async (e) => {
     e.preventDefault();
     if (!isAdmin) return;
 
     const trimmedTitle = newMaterial.title.trim();
     if (!trimmedTitle) return;
 
-    const id = trimmedTitle
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '');
+    try {
+      // Create materi via API
+      const newMateri = await materiService.createMateri({
+        nama_materi: trimmedTitle,
+        level: newMaterial.level,
+        deskripsi: newMaterial.description,
+        jumlah_soal: newMaterial.questionsCount
+      }, user.email);
 
-    const materialToAdd = {
-      id,
-      ...newMaterial
-    };
+      // Add to local state
+      const materialToAdd = {
+        id: newMateri.id,
+        title: newMateri.nama_materi,
+        description: newMateri.deskripsi,
+        level: newMateri.level,
+        questionsCount: newMateri.jumlah_soal,
+        color: 'from-quiz-blue to-quiz-blue/80'
+      };
 
-    setMaterials((prev) => [...prev, materialToAdd]);
-    setNewMaterial({
-      title: '',
-      description: '',
-      level: 'Pemula',
-      questionsCount: 10,
-      color: 'from-quiz-blue to-quiz-blue/80'
-    });
+      setMaterials((prev) => [...prev, materialToAdd]);
+      setNewMaterial({
+        title: '',
+        description: '',
+        level: 'Pemula',
+        questionsCount: 10,
+        color: 'from-quiz-blue to-quiz-blue/80'
+      });
+    } catch (error) {
+      console.error('Error creating materi:', error);
+      alert('Gagal membuat materi. Silakan coba lagi.');
+    }
+  };
+
+  const handleDeleteMaterial = async (materialId) => {
+    if (!isAdmin) return;
+    
+    if (!window.confirm('Apakah Anda yakin ingin menghapus materi ini?')) {
+      return;
+    }
+
+    try {
+      await materiService.deleteMateri(materialId, user.email);
+      setMaterials((prev) => prev.filter(m => m.id !== materialId));
+    } catch (error) {
+      console.error('Error deleting materi:', error);
+      alert('Gagal menghapus materi. Silakan coba lagi.');
+    }
   };
 
   const handleStartQuiz = (materialId) => {
@@ -106,10 +132,33 @@ const ChooseQuiz = () => {
           </p>
         </div>
 
-        {isAdmin && (
-          <div className="mb-10 max-w-3xl mx-auto bg-white rounded-xl shadow-md border border-gray-100 p-6">
-            <h2 className="text-xl font-semibold text-quiz-dark mb-4">Tambah Materi Kuis</h2>
-            <form onSubmit={handleAddMaterial} className="space-y-4">
+        {loading ? (
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-quiz-blue"></div>
+            <span className="ml-3 text-gray-600">Memuat materi...</span>
+          </div>
+        ) : error ? (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+            <div className="text-red-600 mb-2">
+              <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 18.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-semibold text-red-800 mb-2">Error</h3>
+            <p className="text-red-600 mb-4">{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+            >
+              Coba Lagi
+            </button>
+          </div>
+        ) : (
+          <>
+            {isAdmin && (
+              <div className="mb-10 max-w-3xl mx-auto bg-white rounded-xl shadow-md border border-gray-100 p-6">
+                <h2 className="text-xl font-semibold text-quiz-dark mb-4">Tambah Materi Kuis</h2>
+                <form onSubmit={handleAddMaterial} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-quiz-dark mb-1">Judul Materi</label>
@@ -211,16 +260,31 @@ const ChooseQuiz = () => {
                   <span>{material.questionsCount} soal</span>
                 </div>
 
-                <button
-                  onClick={() => handleStartQuiz(material.id)}
-                  className="mt-auto w-full inline-flex justify-center items-center px-4 py-2.5 border border-transparent text-sm font-semibold rounded-lg shadow-sm text-white bg-quiz-blue hover:bg-quiz-blue/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-quiz-blue transition-colors"
-                >
-                  Mulai Kuis
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleStartQuiz(material.id)}
+                    className="flex-1 inline-flex justify-center items-center px-4 py-2.5 border border-transparent text-sm font-semibold rounded-lg shadow-sm text-white bg-quiz-blue hover:bg-quiz-blue/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-quiz-blue transition-colors"
+                  >
+                    Mulai Kuis
+                  </button>
+                  {isAdmin && (
+                    <button
+                      onClick={() => handleDeleteMaterial(material.id)}
+                      className="inline-flex justify-center items-center px-3 py-2.5 border border-transparent text-sm font-semibold rounded-lg shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-600 transition-colors"
+                      title="Hapus materi"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           ))}
         </div>
+        </>
+        )}
       </div>
 
       <Footer />
