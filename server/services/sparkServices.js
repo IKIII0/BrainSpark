@@ -13,7 +13,14 @@ async function getUserById(id) {
 
 async function createUser(data) {
   const { nama_user, email_user, pass, nim, universitas, no_hp } = data;
-  console.log("Creating user with data:", { nama_user, email_user, pass, nim, universitas, no_hp });
+  console.log("Creating user with data:", {
+    nama_user,
+    email_user,
+    pass,
+    nim,
+    universitas,
+    no_hp,
+  });
   const result = await pool.query(
     "INSERT INTO users (nama_user, email_user, pass, nim, universitas, no_hp) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *",
     [nama_user, email_user, pass, nim, universitas, no_hp]

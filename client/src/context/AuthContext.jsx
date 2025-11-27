@@ -34,13 +34,13 @@ export const AuthProvider = ({ children }) => {
       const response = await authService.login(credentials.email, credentials.password);
       
       const userData = {
-        id: response.data?.id || 1,
-        email: response.data?.email || credentials.email,
-        name: response.data?.nama_user || credentials.email.split('@')[0],
-        avatar: `https://ui-avatars.com/api/?name=${response.data?.nama_user || credentials.email.split('@')[0]}&background=3b82f6&color=fff`,
-        nim: response.data?.nim || credentials?.nim || '',
-        university: response.data?.universitas || credentials?.university || '',
-        no_hp: response.data?.no_hp || credentials?.no_hp || '',
+        id: response.id || 1,
+        email: response.email || credentials.email,
+        name: response.nama_user || credentials.email.split('@')[0],
+        avatar: `https://ui-avatars.com/api/?name=${response.nama_user || credentials.email.split('@')[0]}&background=3b82f6&color=fff`,
+        nim: response.nim || credentials?.nim || '',
+        university: response.universitas || credentials?.university || '',
+        no_hp: response.no_hp || credentials?.no_hp || '',
         joinDate: new Date().toISOString(),
         role: 'user'
       };
