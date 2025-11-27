@@ -1,4 +1,5 @@
 const pool = require("../config/db");
+const passwordUtils = require("../utils/passwordUtils");
 
 // User Services
 async function getAllUsers() {
@@ -21,9 +22,13 @@ async function createUser(data) {
     universitas,
     no_hp,
   });
+  
+  // Hash password before saving
+  const hashedPassword = await passwordUtils.hashPassword(pass);
+  
   const result = await pool.query(
     "INSERT INTO users (nama_user, email_user, pass, nim, universitas, no_hp) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *",
-    [nama_user, email_user, pass, nim, universitas, no_hp]
+    [nama_user, email_user, hashedPassword, nim, universitas, no_hp]
   );
   console.log("Created user:", result.rows[0]);
   return result.rows[0];
@@ -50,11 +55,26 @@ async function deleteUser(id) {
 }
 
 async function login(email, password) {
+  // First get user by email
   const result = await pool.query(
-    "SELECT * FROM users WHERE email_user = $1 AND pass = $2",
-    [email, password]
+    "SELECT * FROM users WHERE email_user = $1",
+    [email]
   );
-  return result.rows[0];
+  
+  if (result.rows.length === 0) {
+    return null; // User not found
+  }
+  
+  const user = result.rows[0];
+  
+  // Verify password
+  const isPasswordValid = await passwordUtils.verifyPassword(password, user.pass);
+  
+  if (!isPasswordValid) {
+    return null; // Password incorrect
+  }
+  
+  return user; // Login successful
 }
 
 // Materi service
