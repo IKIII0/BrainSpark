@@ -53,7 +53,7 @@ export const materiService = {
       
       const response = await api.post("/materi", materiData);
       console.log('Create materi response:', response.data);
-      return response.data;
+      return response.data.data; // Return the data object
     } catch (error) {
       console.error("Error creating materi:", error.response?.data || error.message);
       throw error;
@@ -78,7 +78,7 @@ export const materiService = {
       
       const response = await api.delete(`/materi/${id}`);
       console.log('Delete materi response:', response.data);
-      return response.data;
+      return response.data.data; // Return the data object
     } catch (error) {
       console.error("Error deleting materi:", error.response?.data || error.message);
       throw error;
