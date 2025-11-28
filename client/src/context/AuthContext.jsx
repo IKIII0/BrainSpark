@@ -50,7 +50,7 @@ export const AuthProvider = ({ children }) => {
         
         setUser(userData);
         localStorage.setItem('user', JSON.stringify(userData));
-        return response;
+        return userData;
       }
       
       // Handle regular user login
@@ -69,7 +69,7 @@ export const AuthProvider = ({ children }) => {
       setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData));
       
-      return response;
+      return userData;
     } catch (error) {
       throw error;
     } finally {

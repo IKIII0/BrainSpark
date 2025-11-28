@@ -6,7 +6,9 @@ import Register from "./components/register";
 import Quiz from "./pages/Quiz";
 import Account from "./pages/Account";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminRoute from "./components/AdminRoute";
 import ChooseQuiz from './pages/ChooseQuiz';
+import AdminDashboard from './pages/AdminDashboard';
 import "./index.css";
 
 function App() {
@@ -18,6 +20,14 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/ChooseQuiz" element={<ChooseQuiz />} />
+          <Route
+            path="/admin"
+            element={
+              <AdminRoute>
+                <AdminDashboard />
+              </AdminRoute>
+            }
+          />
           <Route
             path="/quiz"
             element={

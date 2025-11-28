@@ -1,9 +1,8 @@
 import axios from "axios";
-import { getAuth } from '../context/AuthContext';
 
 // Create axios instance with base URL
 const api = axios.create({
-  baseURL: 'https://brain-spark-be.vercel.app/api', // Sesuaikan dengan URL API Anda
+  baseURL: 'https://brain-spark-be.vercel.app/api',
   headers: {
     'Content-Type': 'application/json'
   }
@@ -12,9 +11,18 @@ const api = axios.create({
 // Add request interceptor to include auth token/email
 api.interceptors.request.use(
   (config) => {
-    const auth = getAuth();
-    if (auth?.user?.email) {
-      config.headers['x-user-email'] = auth.user.email;
+    // Get user from localStorage instead of context
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        if (user?.email) {
+          config.headers['x-user-email'] = user.email;
+          console.log('Added x-user-email header:', user.email);
+        }
+      } catch (e) {
+        console.error('Error parsing user from localStorage:', e);
+      }
     }
     return config;
   },

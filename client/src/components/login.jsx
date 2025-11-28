@@ -26,7 +26,8 @@ export default function Login() {
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      const from = location.state?.from?.pathname || '/';
+      const { isAdmin } = JSON.parse(localStorage.getItem('user') || '{}');
+      const from = location.state?.from?.pathname || (isAdmin ? '/admin' : '/ChooseQuiz');
       navigate(from, { replace: true });
     }
   }, [isAuthenticated, navigate, location]);
@@ -42,8 +43,13 @@ export default function Login() {
     }
 
     try {
-      await login({ email, password });
-      // Navigation will be handled by the useEffect above
+      const result = await login({ email, password });
+      // Redirect based on user type
+      if (result?.isAdmin) {
+        navigate('/admin', { replace: true });
+      } else {
+        navigate('/ChooseQuiz', { replace: true });
+      }
     } catch (err) {
       setError(err?.message || 'Gagal masuk. Coba lagi.');
     }
