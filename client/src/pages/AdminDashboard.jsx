@@ -63,6 +63,13 @@ const AdminDashboard = () => {
       return;
     }
 
+    console.log('Submitting materi data:', {
+      nama_materi: trimmedTitle,
+      level: newMaterial.level,
+      deskripsi: newMaterial.description,
+      jumlah_soal: newMaterial.questionsCount
+    });
+
     try {
       const newMateri = await materiService.createMateri({
         nama_materi: trimmedTitle,
@@ -70,6 +77,8 @@ const AdminDashboard = () => {
         deskripsi: newMaterial.description,
         jumlah_soal: newMaterial.questionsCount
       });
+
+      console.log('Received new materi:', newMateri);
 
       const materialToAdd = {
         id: newMateri.id.toString(),
@@ -89,8 +98,22 @@ const AdminDashboard = () => {
       setShowAddForm(false);
       alert('Materi berhasil ditambahkan!');
     } catch (error) {
-      console.error('Error creating materi:', error);
-      alert('Gagal membuat materi: ' + (error.response?.data?.message || error.message));
+      console.error('Full error object:', error);
+      console.error('Error response:', error.response);
+      console.error('Error message:', error.message);
+      
+      let errorMessage = 'Gagal membuat materi. ';
+      if (error.response?.data?.message) {
+        errorMessage += error.response.data.message;
+      } else if (error.response?.status === 403) {
+        errorMessage += 'Akses ditolak. Pastikan Anda login sebagai admin.';
+      } else if (error.message) {
+        errorMessage += error.message;
+      } else {
+        errorMessage += 'Silakan coba lagi.';
+      }
+      
+      alert(errorMessage);
     }
   };
 

@@ -276,8 +276,14 @@ async function getMateriById(req, res) {
 
 async function createMateri(req, res) {
   try {
+    console.log('=== Create Materi Controller ===');
+    console.log('Request body:', req.body);
+    console.log('Admin from middleware:', req.admin);
+    
     // Admin sudah diverifikasi oleh middleware isAdmin
     const newMateri = await eventsService.createMateri(req.body);
+    console.log('✅ Materi created:', newMateri);
+    
     res.status(201).json({
       status: "success",
       code: 201,
@@ -285,6 +291,7 @@ async function createMateri(req, res) {
       data: newMateri,
     });
   } catch (err) {
+    console.error('❌ Error creating materi:', err);
     res.status(500).json({
       status: "error",
       code: 500,

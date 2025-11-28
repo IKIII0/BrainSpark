@@ -39,4 +39,34 @@ router.delete("/materi/:id", isAdmin, deleteMateri);
 // Auth Routes
 router.post("/login", login);
 
+// Test Routes (untuk debugging)
+router.get("/test-admin", async (req, res) => {
+  try {
+    const pool = require("../config/db");
+    
+    // Test admin lookup
+    const email = req.query.email || 'admin@gmail.com';
+    const result = await pool.query('SELECT email, nama_admin FROM admin WHERE email = $1', [email]);
+    
+    if (result.rows.length > 0) {
+      res.json({
+        status: 'success',
+        message: 'Admin found',
+        data: result.rows[0]
+      });
+    } else {
+      res.json({
+        status: 'error',
+        message: 'Admin not found',
+        email: email
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      message: error.message
+    });
+  }
+});
+
 module.exports = router;
