@@ -11,6 +11,10 @@ export const useAuth = () => {
   return context;
 };
 
+export function getAuth() {
+  return useContext(AuthContext);
+}
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -36,8 +40,8 @@ export const AuthProvider = ({ children }) => {
       const userData = {
         id: response.id || 1,
         email: response.email || credentials.email,
-        name: response.nama_user || credentials.email.split('@')[0],
-        avatar: `https://ui-avatars.com/api/?name=${response.nama_user || credentials.email.split('@')[0]}&background=3b82f6&color=fff`,
+        name: response.isAdmin ? 'Administrator' : (response.nama_user || credentials.email.split('@')[0]),
+        avatar: `https://ui-avatars.com/api/?name=${response.isAdmin ? 'Administrator' : (response.nama_user || credentials.email.split('@')[0])}&background=3b82f6&color=fff`,
         nim: response.nim || credentials?.nim || '',
         university: response.universitas || credentials?.university || '',
         no_hp: response.no_hp || credentials?.no_hp || '',

@@ -92,55 +92,57 @@ async function deleteUser(id) {
   return result.rows[0];
 }
 
+// Di sparkServices.js - Ganti function login dengan ini:
 async function login(email, password) {
-  // First check if it's an admin
-  const adminResult = await pool.query(
-    "SELECT * FROM admin WHERE email = $1",
-    [email]
-  );
+  console.log('Login attempt for email:', email);
   
-  if (adminResult.rows.length > 0) {
-    const admin = adminResult.rows[0];
+  try {
+    // Cek admin
+    const adminResult = await pool.query(
+      "SELECT email, pass, nama_admin FROM admin WHERE email = $1",
+      [email]
+    );
     
-    // Verify password
-    const isPasswordValid = await passwordUtils.verifyPassword(password, admin.pass);
-    
-    if (isPasswordValid) {
-      // Return admin data with isAdmin flag
-      return {
-        ...admin,
-        isAdmin: true,
-        id: admin.email, // Use email as ID for admin
-        nama_user: admin.nama_admin,
-        email_user: admin.email
-      };
+    if (adminResult.rows.length > 0) {
+      const admin = adminResult.rows[0];
+      const isPasswordValid = await passwordUtils.verifyPassword(password, admin.pass);
+      
+      if (isPasswordValid) {
+        console.log('✅ Admin login successful');
+        return {
+          email: admin.email,
+          name: admin.nama_admin,
+          isAdmin: true
+        };
+      }
     }
+
+    // Jika bukan admin, cek user biasa
+    const userResult = await pool.query(
+      "SELECT * FROM users WHERE email_user = $1",
+      [email]
+    );
+    
+    if (userResult.rows.length > 0) {
+      const user = userResult.rows[0];
+      const isPasswordValid = await passwordUtils.verifyPassword(password, user.pass);
+      
+      if (isPasswordValid) {
+        console.log('✅ User login successful');
+        return {
+          ...user,
+          isAdmin: false
+        };
+      }
+    }
+
+    console.log('❌ Invalid credentials for:', email);
+    return null;
+
+  } catch (error) {
+    console.error('Login error:', error);
+    throw error;
   }
-  
-  // If not admin, check regular users
-  const userResult = await pool.query(
-    "SELECT * FROM users WHERE email_user = $1",
-    [email]
-  );
-  
-  if (userResult.rows.length === 0) {
-    return null; // User not found
-  }
-  
-  const user = userResult.rows[0];
-  
-  // Verify password
-  const isPasswordValid = await passwordUtils.verifyPassword(password, user.pass);
-  
-  if (!isPasswordValid) {
-    return null; // Password incorrect
-  }
-  
-  // Return user data with isAdmin flag
-  return {
-    ...user,
-    isAdmin: false
-  };
 }
 
 // Materi service
