@@ -18,7 +18,9 @@ api.interceptors.request.use(
         const user = JSON.parse(userStr);
         if (user?.email) {
           config.headers['x-user-email'] = user.email;
+          console.log('Request to:', config.url);
           console.log('Added x-user-email header:', user.email);
+          console.log('Request data:', config.data);
         }
       } catch (e) {
         console.error('Error parsing user from localStorage:', e);
@@ -27,6 +29,21 @@ api.interceptors.request.use(
     return config;
   },
   (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Add response interceptor to log errors
+api.interceptors.response.use(
+  (response) => {
+    console.log('Response from:', response.config.url);
+    console.log('Response data:', response.data);
+    return response;
+  },
+  (error) => {
+    console.error('Response error from:', error.config?.url);
+    console.error('Error status:', error.response?.status);
+    console.error('Error data:', error.response?.data);
     return Promise.reject(error);
   }
 );
@@ -58,12 +75,34 @@ export const materiService = {
   async createMateri(materiData) {
     try {
       console.log('Creating materi with data:', materiData);
+      console.log('API Base URL:', api.defaults.baseURL);
       
       const response = await api.post("/materi", materiData);
-      console.log('Create materi response:', response.data);
-      return response.data.data; // Return the data object
+      console.log('Create materi full response:', response);
+      console.log('Create materi response data:', response.data);
+      
+      // Handle different response structures
+      if (response.data.data) {
+        return response.data.data;
+      } else if (response.data) {
+        return response.data;
+      } else {
+        throw new Error('Invalid response structure');
+      }
     } catch (error) {
-      console.error("Error creating materi:", error.response?.data || error.message);
+      console.error("Full error object:", error);
+      console.error("Error response:", error.response);
+      console.error("Error message:", error.message);
+      
+      if (error.response) {
+        // Server responded with error
+        console.error("Server error data:", error.response.data);
+        console.error("Server error status:", error.response.status);
+      } else if (error.request) {
+        // Request was made but no response
+        console.error("No response received:", error.request);
+      }
+      
       throw error;
     }
   },
