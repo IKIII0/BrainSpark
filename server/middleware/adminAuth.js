@@ -4,7 +4,7 @@
 const isAdmin = (req, res, next) => {
   // For now, we'll check if user is admin based on email
   // In a real app, you'd use JWT or session-based auth
-  const adminEmail = 'admin@brainspark.com';
+  const adminEmail = 'admin@gmail.com';
   
   // Check if the request is from admin (you can pass admin email in headers or use auth token)
   const userEmail = req.headers['x-user-email'] || req.body.email_user;

@@ -1,4 +1,5 @@
 const express = require("express");
+const { isAdmin } = require("../middleware/adminAuth");
 const {
   getAllAdmins,
   createAdmin,
@@ -14,6 +15,7 @@ const {
   updateMateri,
   deleteMateri,
 } = require("../controllers/sparkControllers");
+
 const router = express.Router();
 
 // Admin Routes
@@ -30,9 +32,9 @@ router.delete("/users/:id", deleteUser);
 // Materi Routes
 router.get("/materi", getAllMateri);
 router.get("/materi/:id", getMateriById);
-router.post("/materi", createMateri);
-router.put("/materi/:id", updateMateri);
-router.delete("/materi/:id", deleteMateri);
+router.post("/materi", isAdmin, createMateri);
+router.put("/materi/:id", isAdmin, updateMateri);
+router.delete("/materi/:id", isAdmin, deleteMateri);
 
 // Auth Routes
 router.post("/login", login);

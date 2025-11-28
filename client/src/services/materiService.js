@@ -1,23 +1,33 @@
 import axios from "axios";
+import { getAuth } from '../context/AuthContext';
 
-const API_BASE_URL = "https://brain-spark-be.vercel.app/api";
+// Create axios instance with base URL
+const api = axios.create({
+  baseURL: 'https://brain-spark-be.vercel.app/api', // Sesuaikan dengan URL API Anda
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
 
-// Create axios instance with admin headers
-const createAdminApi = (userEmail) => {
-  return axios.create({
-    baseURL: API_BASE_URL,
-    headers: {
-      "Content-Type": "application/json",
-      "x-user-email": userEmail, // Send admin email in headers
-    },
-  });
-};
+// Add request interceptor to include auth token/email
+api.interceptors.request.use(
+  (config) => {
+    const auth = getAuth();
+    if (auth?.user?.email) {
+      config.headers['x-user-email'] = auth.user.email;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
 export const materiService = {
   // Get all materi (public)
   async getAllMateri() {
     try {
-      const response = await axios.get(`${API_BASE_URL}/materi`);
+      const response = await api.get('/materi');
       return response.data.data;
     } catch (error) {
       console.error("Error fetching materi:", error);
@@ -28,7 +38,7 @@ export const materiService = {
   // Get materi by ID (public)
   async getMateriById(id) {
     try {
-      const response = await axios.get(`${API_BASE_URL}/materi/${id}`);
+      const response = await api.get(`/materi/${id}`);
       return response.data.data;
     } catch (error) {
       console.error("Error fetching materi:", error);
@@ -37,23 +47,24 @@ export const materiService = {
   },
 
   // Create materi (admin only)
-  async createMateri(materiData, userEmail) {
+  async createMateri(materiData) {
     try {
-      const adminApi = createAdminApi(userEmail);
-      const response = await adminApi.post("/materi", materiData);
-      return response.data.data;
+      console.log('Creating materi with data:', materiData);
+      
+      const response = await api.post("/materi", materiData);
+      console.log('Create materi response:', response.data);
+      return response.data;
     } catch (error) {
-      console.error("Error creating materi:", error);
+      console.error("Error creating materi:", error.response?.data || error.message);
       throw error;
     }
   },
 
   // Update materi (admin only)
-  async updateMateri(id, materiData, userEmail) {
+  async updateMateri(id, materiData) {
     try {
-      const adminApi = createAdminApi(userEmail);
-      const response = await adminApi.put(`/materi/${id}`, materiData);
-      return response.data.data;
+      const response = await api.put(`/materi/${id}`, materiData);
+      return response.data;
     } catch (error) {
       console.error("Error updating materi:", error);
       throw error;
@@ -61,13 +72,15 @@ export const materiService = {
   },
 
   // Delete materi (admin only)
-  async deleteMateri(id, userEmail) {
+  async deleteMateri(id) {
     try {
-      const adminApi = createAdminApi(userEmail);
-      const response = await adminApi.delete(`/materi/${id}`);
-      return response.data.data;
+      console.log('Deleting materi with ID:', id);
+      
+      const response = await api.delete(`/materi/${id}`);
+      console.log('Delete materi response:', response.data);
+      return response.data;
     } catch (error) {
-      console.error("Error deleting materi:", error);
+      console.error("Error deleting materi:", error.response?.data || error.message);
       throw error;
     }
   },
