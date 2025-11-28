@@ -1,21 +1,37 @@
 // Simple admin check middleware
-// Admin is identified by email: admin@brainspark.com
+const eventsService = require("../services/sparkServices");
 
-const isAdmin = (req, res, next) => {
-  // For now, we'll check if user is admin based on email
-  // In a real app, you'd use JWT or session-based auth
-  const adminEmail = 'admin@gmail.com';
-  
-  // Check if the request is from admin (you can pass admin email in headers or use auth token)
-  const userEmail = req.headers['x-user-email'] || req.body.email_user;
-  
-  if (userEmail === adminEmail) {
-    next(); // User is admin, proceed
-  } else {
-    res.status(403).json({
+const isAdmin = async (req, res, next) => {
+  try {
+    // Ambil email dari header atau body
+    const userEmail = req.headers['x-user-email'] || req.body.email;
+    
+    if (!userEmail) {
+      return res.status(403).json({
+        status: 'error',
+        code: 403,
+        message: 'Admin access required - no email provided'
+      });
+    }
+
+    // Cek apakah email ada di table admin
+    const admin = await eventsService.getAdminByEmail(userEmail);
+    
+    if (admin) {
+      req.admin = admin; // Simpan data admin di request
+      next(); // User adalah admin, lanjutkan
+    } else {
+      res.status(403).json({
+        status: 'error',
+        code: 403,
+        message: 'Admin access required'
+      });
+    }
+  } catch (err) {
+    res.status(500).json({
       status: 'error',
-      code: 403,
-      message: 'Admin access required'
+      code: 500,
+      message: 'Error verifying admin access'
     });
   }
 };

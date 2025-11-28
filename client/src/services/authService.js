@@ -15,7 +15,8 @@ export const authService = {
   async login(email, password) {
     try {
       const response = await api.post('/login', { email_user: email, pass: password });
-      return response.data;
+      console.log('Login response:', response.data);
+      return response.data.data; // Return the data object
     } catch (error) {
       // Handle specific error messages from backend for invalid credentials
       if (error.response?.status === 401) {

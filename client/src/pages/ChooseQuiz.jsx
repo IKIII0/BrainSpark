@@ -70,7 +70,7 @@ const ChooseQuiz = () => {
         level: newMaterial.level,
         deskripsi: newMaterial.description,
         jumlah_soal: newMaterial.questionsCount
-      }, user.email);
+      });
 
       // Add to local state
       const materialToAdd = {
@@ -104,7 +104,7 @@ const ChooseQuiz = () => {
     }
 
     try {
-      await materiService.deleteMateri(materialId, user.email);
+      await materiService.deleteMateri(materialId);
       setMaterials((prev) => prev.filter(m => m.id !== materialId));
     } catch (error) {
       console.error('Error deleting materi:', error);

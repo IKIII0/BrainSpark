@@ -36,17 +36,34 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     try {
       const response = await authService.login(credentials.email, credentials.password);
+      console.log('Auth response:', response);
       
+      // Handle admin login
+      if (response.isAdmin) {
+        const userData = {
+          id: 'admin',
+          email: response.email,
+          name: response.nama || 'Administrator',
+          avatar: `https://ui-avatars.com/api/?name=Administrator&background=3b82f6&color=fff`,
+          isAdmin: true
+        };
+        
+        setUser(userData);
+        localStorage.setItem('user', JSON.stringify(userData));
+        return response;
+      }
+      
+      // Handle regular user login
       const userData = {
-        id: response.id || 1,
-        email: response.email || credentials.email,
-        name: response.isAdmin ? 'Administrator' : (response.nama_user || credentials.email.split('@')[0]),
-        avatar: `https://ui-avatars.com/api/?name=${response.isAdmin ? 'Administrator' : (response.nama_user || credentials.email.split('@')[0])}&background=3b82f6&color=fff`,
-        nim: response.nim || credentials?.nim || '',
-        university: response.universitas || credentials?.university || '',
-        no_hp: response.no_hp || credentials?.no_hp || '',
+        id: response.id,
+        email: response.email,
+        name: response.nama_user || credentials.email.split('@')[0],
+        avatar: `https://ui-avatars.com/api/?name=${response.nama_user || credentials.email.split('@')[0]}&background=3b82f6&color=fff`,
+        nim: response.nim || '',
+        university: response.universitas || '',
+        no_hp: response.no_hp || '',
         joinDate: new Date().toISOString(),
-        isAdmin: response.isAdmin || false
+        isAdmin: false
       };
 
       setUser(userData);
