@@ -428,7 +428,7 @@ module.exports = {
   deleteMateri,
   getAllQuiz,
   getQuizByMateriId,
-  createQuiz,
+  createQuiz, 
   updateQuiz,
   deleteQuiz,
 };
