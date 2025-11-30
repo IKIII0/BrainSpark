@@ -276,14 +276,14 @@ async function getMateriById(req, res) {
 
 async function createMateri(req, res) {
   try {
-    console.log('=== Create Materi Controller ===');
-    console.log('Request body:', req.body);
-    console.log('Admin from middleware:', req.admin);
-    
+    console.log("=== Create Materi Controller ===");
+    console.log("Request body:", req.body);
+    console.log("Admin from middleware:", req.admin);
+
     // Admin sudah diverifikasi oleh middleware isAdmin
     const newMateri = await eventsService.createMateri(req.body);
-    console.log('✅ Materi created:', newMateri);
-    
+    console.log("✅ Materi created:", newMateri);
+
     res.status(201).json({
       status: "success",
       code: 201,
@@ -291,7 +291,7 @@ async function createMateri(req, res) {
       data: newMateri,
     });
   } catch (err) {
-    console.error('❌ Error creating materi:', err);
+    console.error("❌ Error creating materi:", err);
     res.status(500).json({
       status: "error",
       code: 500,
@@ -351,6 +351,64 @@ async function deleteMateri(req, res) {
       code: 500,
       message: err.message,
     });
+  }
+}
+
+// Ambil semua quiz
+async function getAllQuiz(req, res) {
+  try {
+    const quiz = await eventsService.getAllQuiz();
+    res.json(quiz);
+  } catch (error) {
+    console.error("Error getAllQuiz:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}
+
+// Ambil quiz berdasarkan materi_id
+async function getQuizByMateriId(req, res) {
+  try {
+    const { id } = req.params;
+    const quiz = await eventsService.getQuizByMateriId(id);
+    res.json(quiz);
+  } catch (error) {
+    console.error("Error getQuizByMateriId:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}
+
+// Tambah quiz baru
+async function createQuiz(req, res) {
+  try {
+    const newQuiz = await eventsService.createQuiz(req.body);
+    res.status(201).json(newQuiz);
+  } catch (error) {
+    console.error("Error createQuiz:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}
+
+// Update quiz
+async function updateQuiz(req, res) {
+  try {
+    const { id } = req.params;
+    const updatedQuiz = await eventsService.updateQuiz(id, req.body);
+    res.json(updatedQuiz);
+  } catch (error) {
+    console.error("Error updateQuiz:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}
+
+// Hapus quiz
+async function deleteQuiz(req, res) {
+  try {
+    const { id } = req.params;
+    const deletedQuiz = await eventsService.deleteQuiz(id);
+    res.json(deletedQuiz);
+  } catch (error) {
+    console.error("Error deleteQuiz:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 }
 
