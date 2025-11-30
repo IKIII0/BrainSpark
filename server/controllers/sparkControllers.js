@@ -358,10 +358,16 @@ async function deleteMateri(req, res) {
 async function getAllQuiz(req, res) {
   try {
     const quiz = await eventsService.getAllQuiz();
-    res.json(quiz);
+    res.json({
+      status: "success",
+      data: quiz
+    });
   } catch (error) {
     console.error("Error getAllQuiz:", error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ 
+      status: "error",
+      message: "Internal server error" 
+    });
   }
 }
 
@@ -370,10 +376,16 @@ async function getQuizByMateriId(req, res) {
   try {
     const { id } = req.params;
     const quiz = await eventsService.getQuizByMateriId(id);
-    res.json(quiz);
+    res.json({
+      status: "success",
+      data: quiz
+    });
   } catch (error) {
     console.error("Error getQuizByMateriId:", error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ 
+      status: "error",
+      message: "Internal server error" 
+    });
   }
 }
 

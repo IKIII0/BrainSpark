@@ -23,14 +23,19 @@ const Quiz = () => {
     const fetchQuizData = async () => {
       try {
         setLoading(true);
-        
+        console.log('Fetching quiz for materi ID:', id);
+
         // Get materi info
         const materiData = await materiService.getMateriById(id);
+        console.log('Materi data received:', materiData);
         setMateri(materiData);
-        
+
         // Get quiz questions for this materi
         const quizData = await quizService.getQuizByMateriId(id);
-        
+        console.log('Quiz data received:', quizData);
+        console.log('Quiz data type:', typeof quizData);
+        console.log('Is array:', Array.isArray(quizData));
+
         if (!quizData || quizData.length === 0) {
           setError("Tidak ada soal quiz untuk materi ini.");
           return;
@@ -39,12 +44,32 @@ const Quiz = () => {
         // Format quiz data for frontend
         const formattedQuiz = {
           title: materiData.nama_materi,
-          questions: quizData.map((q) => ({
-            id: q.id,
-            question: q.question,
-            options: Array.isArray(q.options) ? q.options : JSON.parse(q.options),
-            correctAnswer: q.correct_answer,
-          })),
+          questions: quizData.map((q) => {
+            let options = q.options;
+            
+            // Parse options if it's a string
+            if (typeof options === 'string') {
+              try {
+                options = JSON.parse(options);
+              } catch (e) {
+                console.error('Error parsing options for question:', q.id, e);
+                options = [];
+              }
+            }
+            
+            // Ensure options is an array
+            if (!Array.isArray(options)) {
+              console.error('Options is not an array for question:', q.id);
+              options = [];
+            }
+            
+            return {
+              id: q.id,
+              question: q.question,
+              options: options,
+              correctAnswer: q.correct_answer,
+            };
+          }),
         };
 
         setQuiz(formattedQuiz);
@@ -104,7 +129,7 @@ const Quiz = () => {
   };
 
   const goBackToMateri = () => {
-    navigate('/choose-quiz');
+    navigate("/ChooseQuiz");
   };
 
   // Loading state
@@ -131,8 +156,18 @@ const Quiz = () => {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
             <div className="text-red-600 mb-4">
-              <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <svg
+                className="w-16 h-16 mx-auto"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
               </svg>
             </div>
             <h2 className="text-2xl font-bold text-gray-800 mb-2">Error</h2>
@@ -157,8 +192,12 @@ const Quiz = () => {
         <Navbar />
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">Quiz Tidak Ditemukan</h2>
-            <p className="text-gray-600 mb-6">Quiz untuk materi ini tidak tersedia.</p>
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">
+              Quiz Tidak Ditemukan
+            </h2>
+            <p className="text-gray-600 mb-6">
+              Quiz untuk materi ini tidak tersedia.
+            </p>
             <button
               onClick={goBackToMateri}
               className="bg-quiz-blue hover:bg-quiz-blue/90 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
