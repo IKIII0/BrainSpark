@@ -1,38 +1,65 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { quizService } from "../services/quizService";
+import { materiService } from "../services/materiService";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
 const Quiz = () => {
   const { user } = useAuth();
+  const { id } = useParams();
+  const navigate = useNavigate();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState({});
   const [quizCompleted, setQuizCompleted] = useState(false);
+  const [quiz, setQuiz] = useState(null);
+  const [materi, setMateri] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  // Sample quiz data
-  const quiz = {
-    title: "Kuis Pengetahuan Umum",
-    questions: [
-      {
-        id: 1,
-        question: "Berapakah hasil dari 15 + 27?",
-        options: ["40", "42", "43", "45"],
-        correctAnswer: 1,
-      },
-      {
-        id: 2,
-        question: "Siapakah presiden pertama Indonesia?",
-        options: ["Soekarno", "Soeharto", "B.J. Habibie", "Megawati"],
-        correctAnswer: 0,
-      },
-      {
-        id: 3,
-        question: "Planet manakah yang paling dekat dengan Matahari?",
-        options: ["Venus", "Mars", "Merkurius", "Bumi"],
-        correctAnswer: 2,
-      },
-    ],
-  };
+  // Fetch quiz data from backend
+  useEffect(() => {
+    const fetchQuizData = async () => {
+      try {
+        setLoading(true);
+        
+        // Get materi info
+        const materiData = await materiService.getMateriById(id);
+        setMateri(materiData);
+        
+        // Get quiz questions for this materi
+        const quizData = await quizService.getQuizByMateriId(id);
+        
+        if (!quizData || quizData.length === 0) {
+          setError("Tidak ada soal quiz untuk materi ini.");
+          return;
+        }
+
+        // Format quiz data for frontend
+        const formattedQuiz = {
+          title: materiData.nama_materi,
+          questions: quizData.map((q) => ({
+            id: q.id,
+            question: q.question,
+            options: Array.isArray(q.options) ? q.options : JSON.parse(q.options),
+            correctAnswer: q.correct_answer,
+          })),
+        };
+
+        setQuiz(formattedQuiz);
+      } catch (err) {
+        console.error("Error fetching quiz data:", err);
+        setError("Gagal memuat quiz. Silakan coba lagi.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchQuizData();
+    }
+  }, [id]);
 
   const handleAnswerSelect = (questionIndex, answerIndex) => {
     setAnswers({
@@ -60,6 +87,7 @@ const Quiz = () => {
   };
 
   const calculateScore = () => {
+    if (!quiz) return 0;
     let correct = 0;
     quiz.questions.forEach((question, index) => {
       if (answers[index] === question.correctAnswer) {
@@ -74,6 +102,75 @@ const Quiz = () => {
     setAnswers({});
     setQuizCompleted(false);
   };
+
+  const goBackToMateri = () => {
+    navigate('/choose-quiz');
+  };
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-quiz-light to-white">
+        <Navbar />
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-quiz-blue mx-auto"></div>
+            <p className="mt-4 text-gray-600">Memuat quiz...</p>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-quiz-light to-white">
+        <Navbar />
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
+            <div className="text-red-600 mb-4">
+              <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">Error</h2>
+            <p className="text-gray-600 mb-6">{error}</p>
+            <button
+              onClick={goBackToMateri}
+              className="bg-quiz-blue hover:bg-quiz-blue/90 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+            >
+              Kembali ke Pilihan Quiz
+            </button>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  // No quiz data
+  if (!quiz) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-quiz-light to-white">
+        <Navbar />
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">Quiz Tidak Ditemukan</h2>
+            <p className="text-gray-600 mb-6">Quiz untuk materi ini tidak tersedia.</p>
+            <button
+              onClick={goBackToMateri}
+              className="bg-quiz-blue hover:bg-quiz-blue/90 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+            >
+              Kembali ke Pilihan Quiz
+            </button>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   if (quizCompleted) {
     const score = calculateScore();

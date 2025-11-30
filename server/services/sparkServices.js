@@ -3,21 +3,25 @@ const passwordUtils = require("../utils/passwordUtils");
 
 // Admin Services
 async function getAllAdmins() {
-  const result = await pool.query("SELECT * FROM admin ORDER BY nama_admin ASC");
+  const result = await pool.query(
+    "SELECT * FROM admin ORDER BY nama_admin ASC"
+  );
   return result.rows;
 }
 
 async function getAdminByEmail(email) {
-  const result = await pool.query("SELECT * FROM admin WHERE email = $1", [email]);
+  const result = await pool.query("SELECT * FROM admin WHERE email = $1", [
+    email,
+  ]);
   return result.rows[0];
 }
 
 async function createAdmin(data) {
   const { nama_admin, email, pass } = data;
-  
+
   // Hash password before saving
   const hashedPassword = await passwordUtils.hashPassword(pass);
-  
+
   const result = await pool.query(
     "INSERT INTO admin (nama_admin, email, pass) VALUES ($1, $2, $3) RETURNING *",
     [nama_admin, email, hashedPassword]
@@ -30,12 +34,12 @@ async function loginAdmin(email, pass) {
   if (!admin) {
     return null;
   }
-  
+
   const isPasswordValid = await passwordUtils.verifyPassword(pass, admin.pass);
   if (!isPasswordValid) {
     return null;
   }
-  
+
   return admin;
 }
 
@@ -60,10 +64,10 @@ async function createUser(data) {
     universitas,
     no_hp,
   });
-  
+
   // Hash password before saving
   const hashedPassword = await passwordUtils.hashPassword(pass);
-  
+
   const result = await pool.query(
     "INSERT INTO users (nama_user, email_user, pass, nim, universitas, no_hp) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *",
     [nama_user, email_user, hashedPassword, nim, universitas, no_hp]
@@ -94,25 +98,28 @@ async function deleteUser(id) {
 
 // Di sparkServices.js - Ganti function login dengan ini:
 async function login(email, password) {
-  console.log('Login attempt for email:', email);
-  
+  console.log("Login attempt for email:", email);
+
   try {
     // Cek admin
     const adminResult = await pool.query(
       "SELECT email, pass, nama_admin FROM admin WHERE email = $1",
       [email]
     );
-    
+
     if (adminResult.rows.length > 0) {
       const admin = adminResult.rows[0];
-      const isPasswordValid = await passwordUtils.verifyPassword(password, admin.pass);
-      
+      const isPasswordValid = await passwordUtils.verifyPassword(
+        password,
+        admin.pass
+      );
+
       if (isPasswordValid) {
-        console.log('✅ Admin login successful');
+        console.log("✅ Admin login successful");
         return {
           email: admin.email,
           name: admin.nama_admin,
-          isAdmin: true
+          isAdmin: true,
         };
       }
     }
@@ -122,25 +129,27 @@ async function login(email, password) {
       "SELECT * FROM users WHERE email_user = $1",
       [email]
     );
-    
+
     if (userResult.rows.length > 0) {
       const user = userResult.rows[0];
-      const isPasswordValid = await passwordUtils.verifyPassword(password, user.pass);
-      
+      const isPasswordValid = await passwordUtils.verifyPassword(
+        password,
+        user.pass
+      );
+
       if (isPasswordValid) {
-        console.log('✅ User login successful');
+        console.log("✅ User login successful");
         return {
           ...user,
-          isAdmin: false
+          isAdmin: false,
         };
       }
     }
 
-    console.log('❌ Invalid credentials for:', email);
+    console.log("❌ Invalid credentials for:", email);
     return null;
-
   } catch (error) {
-    console.error('Login error:', error);
+    console.error("Login error:", error);
     throw error;
   }
 }
@@ -185,13 +194,59 @@ async function deleteMateri(id) {
   return result.rows[0];
 }
 
+// Ambil semua quiz
+async function getAllQuiz() {
+  const result = await pool.query("SELECT * FROM quiz ORDER BY id ASC");
+  return result.rows;
+}
+
+// Ambil quiz berdasarkan materi_id
+async function getQuizByMateriId(materiId) {
+  const result = await pool.query(
+    "SELECT * FROM quiz WHERE materi_id = $1 ORDER BY id ASC",
+    [materiId]
+  );
+  return result.rows;
+}
+
+// Tambah soal quiz
+async function createQuiz(data) {
+  const { materi_id, question, options, correct_answer } = data;
+  const result = await pool.query(
+    "INSERT INTO quiz (materi_id, question, options, correct_answer) VALUES ($1,$2,$3,$4) RETURNING *",
+    [materi_id, question, options, correct_answer]
+  );
+  return result.rows[0];
+}
+
+// Update soal quiz
+async function updateQuiz(id, data) {
+  const { question, options, correct_answer } = data;
+  const result = await pool.query(
+    `UPDATE quiz 
+     SET question = $1, options = $2, correct_answer = $3
+     WHERE id = $4 RETURNING *`,
+    [question, options, correct_answer, id]
+  );
+  return result.rows[0];
+}
+
+// Hapus soal quiz
+async function deleteQuiz(id) {
+  const result = await pool.query(
+    "DELETE FROM quiz WHERE id = $1 RETURNING *",
+    [id]
+  );
+  return result.rows[0];
+}
+
 module.exports = {
   // Admin services
   getAllAdmins,
   getAdminByEmail,
   createAdmin,
   loginAdmin,
-  
+
   // User services
   getAllUsers,
   getUserById,
@@ -199,11 +254,18 @@ module.exports = {
   updateUser,
   deleteUser,
   login,
-  
+
   // Materi services
   getAllMateri,
   getMateriById,
   createMateri,
   updateMateri,
   deleteMateri,
+
+  // Quiz services
+  getAllQuiz,
+  getQuizByMateriId,
+  createQuiz,
+  updateQuiz,
+  deleteQuiz,
 };

@@ -14,6 +14,11 @@ const {
   createMateri,
   updateMateri,
   deleteMateri,
+  getAllQuiz,
+  getQuizByMateriId,
+  createQuiz,
+  updateQuiz,
+  deleteQuiz,
 } = require("../controllers/sparkControllers");
 
 const router = express.Router();
@@ -36,6 +41,14 @@ router.post("/materi", isAdmin, createMateri);
 router.put("/materi/:id", isAdmin, updateMateri);
 router.delete("/materi/:id", isAdmin, deleteMateri);
 
+// Quiz Routes
+// Quiz Routes
+router.get("/quiz", getAllQuiz);
+router.get("/quiz/materi/:id", getQuizByMateriId);
+router.post("/quiz", isAdmin, createQuiz);
+router.put("/quiz/:id", isAdmin, updateQuiz);
+router.delete("/quiz/:id", isAdmin, deleteQuiz);
+
 // Auth Routes
 router.post("/login", login);
 
@@ -43,28 +56,31 @@ router.post("/login", login);
 router.get("/test-admin", async (req, res) => {
   try {
     const pool = require("../config/db");
-    
+
     // Test admin lookup
-    const email = req.query.email || 'admin@gmail.com';
-    const result = await pool.query('SELECT email, nama_admin FROM admin WHERE email = $1', [email]);
-    
+    const email = req.query.email || "admin@gmail.com";
+    const result = await pool.query(
+      "SELECT email, nama_admin FROM admin WHERE email = $1",
+      [email]
+    );
+
     if (result.rows.length > 0) {
       res.json({
-        status: 'success',
-        message: 'Admin found',
-        data: result.rows[0]
+        status: "success",
+        message: "Admin found",
+        data: result.rows[0],
       });
     } else {
       res.json({
-        status: 'error',
-        message: 'Admin not found',
-        email: email
+        status: "error",
+        message: "Admin not found",
+        email: email,
       });
     }
   } catch (error) {
     res.status(500).json({
-      status: 'error',
-      message: error.message
+      status: "error",
+      message: error.message,
     });
   }
 });

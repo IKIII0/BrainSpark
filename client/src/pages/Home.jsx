@@ -7,16 +7,16 @@ const Home = () => {
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const smoothScrollTo = (elementId) => {
     const element = document.getElementById(elementId);
     if (element) {
       element.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
+        behavior: "smooth",
+        block: "start",
       });
     }
   };
@@ -27,7 +27,10 @@ const Home = () => {
 
       {/* Hero Section */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-quiz-light/20 to-transparent animate-pulse" style={{ animationDuration: '4s' }}></div>
+        <div
+          className="absolute inset-0 bg-gradient-to-br from-quiz-light/20 to-transparent animate-pulse"
+          style={{ animationDuration: "4s" }}
+        ></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
           <div className="lg:grid lg:grid-cols-12 lg:gap-8">
             <div className="sm:text-center md:max-w-2xl md:mx-auto lg:col-span-6 lg:text-left animate-fade-in-up">
@@ -38,9 +41,9 @@ const Home = () => {
                 <span className="text-quiz-brown">Asah Pikiran Anda</span>
               </h2>
               <p className="mt-6 text-xl text-quiz-dark/80 leading-relaxed">
-                Buat, bagikan, dan ikuti kuis interaktif yang menantang otak
-                dan memperluas pengetahuan Anda. Bergabunglah dengan ribuan
-                pelajar dalam pengalaman kuis yang luar biasa.
+                Buat, bagikan, dan ikuti kuis interaktif yang menantang otak dan
+                memperluas pengetahuan Anda. Bergabunglah dengan ribuan pelajar
+                dalam pengalaman kuis yang luar biasa.
               </p>
               <div className="mt-8 flex flex-col sm:flex-row gap-4">
                 <button className="bg-quiz-blue hover:bg-quiz-blue/90 text-white px-8 py-4 rounded-xl text-lg font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
@@ -53,19 +56,17 @@ const Home = () => {
               <div className="mt-8 flex items-center justify-center lg:justify-start space-x-8">
                 <div className="text-center">
                   <div className="text-2xl font-bold text-quiz-dark">10K+</div>
-                  <div className="text-sm text-quiz-dark/60">Pengguna Aktif</div>
+                  <div className="text-sm text-quiz-dark/60">
+                    Pengguna Aktif
+                  </div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-quiz-dark">50K+</div>
-                  <div className="text-sm text-quiz-dark/60">
-                    Kuis Dibuat
-                  </div>
+                  <div className="text-sm text-quiz-dark/60">Kuis Dibuat</div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-quiz-dark">1M+</div>
-                  <div className="text-sm text-quiz-dark/60">
-                    Soal Terjawab
-                  </div>
+                  <div className="text-sm text-quiz-dark/60">Soal Terjawab</div>
                 </div>
               </div>
             </div>
@@ -115,7 +116,10 @@ const Home = () => {
           </div>
 
           <div className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div className="text-center p-6 rounded-2xl hover:shadow-xl transition-all duration-500 hover:-translate-y-2 hover:bg-gradient-to-br hover:from-quiz-blue/5 hover:to-transparent animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+            <div
+              className="text-center p-6 rounded-2xl hover:shadow-xl transition-all duration-500 hover:-translate-y-2 hover:bg-gradient-to-br hover:from-quiz-blue/5 hover:to-transparent animate-fade-in-up"
+              style={{ animationDelay: "0.2s" }}
+            >
               <div className="w-16 h-16 bg-quiz-yellow rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg
                   className="w-8 h-8 text-quiz-dark"
@@ -135,12 +139,15 @@ const Home = () => {
                 Sangat Cepat
               </h3>
               <p className="text-quiz-dark/70">
-                Pembuatan kuis yang cepat dan hasil instan. Dapatkan umpan
-                balik langsung setelah setiap pertanyaan.
+                Pembuatan kuis yang cepat dan hasil instan. Dapatkan umpan balik
+                langsung setelah setiap pertanyaan.
               </p>
             </div>
 
-            <div className="text-center p-6 rounded-2xl hover:shadow-xl transition-all duration-500 hover:-translate-y-2 hover:bg-gradient-to-br hover:from-quiz-blue/5 hover:to-transparent animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+            <div
+              className="text-center p-6 rounded-2xl hover:shadow-xl transition-all duration-500 hover:-translate-y-2 hover:bg-gradient-to-br hover:from-quiz-blue/5 hover:to-transparent animate-fade-in-up"
+              style={{ animationDelay: "0.2s" }}
+            >
               <div className="w-16 h-16 bg-quiz-blue rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg
                   className="w-8 h-8 text-white"
@@ -165,7 +172,10 @@ const Home = () => {
               </p>
             </div>
 
-            <div className="text-center p-6 rounded-2xl hover:shadow-xl transition-all duration-500 hover:-translate-y-2 hover:bg-gradient-to-br hover:from-quiz-brown/5 hover:to-transparent animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+            <div
+              className="text-center p-6 rounded-2xl hover:shadow-xl transition-all duration-500 hover:-translate-y-2 hover:bg-gradient-to-br hover:from-quiz-brown/5 hover:to-transparent animate-fade-in-up"
+              style={{ animationDelay: "0.3s" }}
+            >
               <div className="w-16 h-16 bg-quiz-brown rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg
                   className="w-8 h-8 text-white"
@@ -209,20 +219,25 @@ const Home = () => {
           </div>
 
           <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+            <div
+              className="text-center animate-fade-in-up"
+              style={{ animationDelay: "0.1s" }}
+            >
               <div className="w-20 h-20 bg-quiz-yellow rounded-full flex items-center justify-center mx-auto mb-6 transition-all duration-300 hover:scale-110 hover:rotate-12">
                 <span className="text-2xl font-bold text-quiz-dark">1</span>
               </div>
               <h3 className="text-xl font-semibold text-quiz-dark mb-4">
-                Pilih atau Buat
+                Pilih
               </h3>
               <p className="text-quiz-dark/70">
-                Pilih dari ribuan kuis yang ada atau buat kuis kustom Anda
-                sendiri dalam hitungan menit.
+                Pilih kuis yang ingin anda ikuti.
               </p>
             </div>
 
-            <div className="text-center animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+            <div
+              className="text-center animate-fade-in-up"
+              style={{ animationDelay: "0.2s" }}
+            >
               <div className="w-20 h-20 bg-quiz-blue rounded-full flex items-center justify-center mx-auto mb-6 transition-all duration-300 hover:scale-110 hover:rotate-12">
                 <span className="text-2xl font-bold text-white">2</span>
               </div>
@@ -235,7 +250,10 @@ const Home = () => {
               </p>
             </div>
 
-            <div className="text-center animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+            <div
+              className="text-center animate-fade-in-up"
+              style={{ animationDelay: "0.3s" }}
+            >
               <div className="w-20 h-20 bg-quiz-brown rounded-full flex items-center justify-center mx-auto mb-6 transition-all duration-300 hover:scale-110 hover:rotate-12">
                 <span className="text-2xl font-bold text-white">3</span>
               </div>
@@ -252,7 +270,10 @@ const Home = () => {
       </section>
 
       {/* CTA Section */}
-      <section id="pricing" className="py-20 bg-gradient-to-r from-quiz-blue to-quiz-brown scroll-mt-20">
+      <section
+        id="pricing"
+        className="py-20 bg-gradient-to-r from-quiz-blue to-quiz-brown scroll-mt-20"
+      >
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
             Siap Mengasah Otak Anda?
