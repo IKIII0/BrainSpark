@@ -73,14 +73,9 @@ const Navbar = ({ onNavigate }) => {
                 onClick={() => handleNavigation('how-it-works')}
                 className="text-quiz-dark hover:text-quiz-blue transition-all duration-300 hover:scale-105"
               >
-                Cara Kerja
+                Tutorial
               </Link>
-              {/* <button
-                onClick={() => handleNavigation('pricing')}
-                className="text-quiz-dark hover:text-quiz-blue transition-all duration-300 hover:scale-105"
-              >
-                Harga
-              </button> */}
+             
                             
               {isAuthenticated ? (
                 <div className="flex items-center space-x-4">
@@ -158,13 +153,7 @@ const Navbar = ({ onNavigate }) => {
                 onClick={() => handleNavigation('how-it-works')}
                 className="block w-full text-left text-quiz-dark hover:text-quiz-blue px-3 py-2 transition-all duration-300 hover:bg-quiz-light/30"
               >
-                Cara Kerja
-              </button>
-              <button
-                onClick={() => handleNavigation('pricing')}
-                className="block w-full text-left text-quiz-dark hover:text-quiz-blue px-3 py-2 transition-all duration-300 hover:bg-quiz-light/30"
-              >
-                Harga
+              Tutorial
               </button>
                             
               {isAuthenticated ? (
