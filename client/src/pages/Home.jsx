@@ -209,7 +209,7 @@ const Home = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-quiz-dark">
-              Cara Kerja
+              Tutorial
             </h2>
             <p className="mt-4 text-xl text-quiz-dark/80">
               Mulai hanya dengan tiga langkah sederhana
@@ -243,7 +243,7 @@ const Home = () => {
                 Ikuti Kuis
               </h3>
               <p className="text-quiz-dark/70">
-                Jawab pertanyaan sesuai kecepatan Anda dengan antarmuka yang
+                Jawab pertanyaan sesuai ketepatan Anda dengan antarmuka yang
                 intuitif dan menarik.
               </p>
             </div>
@@ -283,9 +283,6 @@ const Home = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button className="bg-white text-quiz-blue hover:bg-gray-50 px-8 py-4 rounded-xl text-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-2xl transform hover:-translate-y-2 hover:scale-105">
               Mulai Kuis Pertama
-            </button>
-            <button className="border-2 border-white text-white hover:bg-white hover:text-quiz-blue px-8 py-4 rounded-xl text-lg font-semibold transition-all duration-300 transform hover:-translate-y-2 hover:scale-105">
-              Pelajari Lebih Lanjut
             </button>
           </div>
         </div>
