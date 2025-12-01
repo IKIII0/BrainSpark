@@ -1,9 +1,21 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import { useAuth } from "../context/AuthContext";
 
 const Home = () => {
   const [scrollY, setScrollY] = useState(0);
+  const { user: currentUser } = useAuth();
+  const navigate = useNavigate();
+
+  const handleStartQuiz = () => {
+    if (currentUser) {
+      navigate('/choosequiz');
+    } else {
+      navigate('/login');
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
@@ -46,7 +58,10 @@ const Home = () => {
                 dalam pengalaman kuis yang luar biasa.
               </p>
               <div className="mt-8 flex flex-col sm:flex-row gap-4">
-                <button className="bg-quiz-blue hover:bg-quiz-blue/90 text-white px-8 py-4 rounded-xl text-lg font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                <button 
+                  onClick={handleStartQuiz}
+                  className="bg-quiz-blue hover:bg-quiz-blue/90 text-white px-8 py-4 rounded-xl text-lg font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                >
                   Mulai Kuis Sekarang
                 </button>
 
@@ -281,7 +296,10 @@ const Home = () => {
             pengetahuan mereka dengan BrainSpark.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="bg-white text-quiz-blue hover:bg-gray-50 px-8 py-4 rounded-xl text-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-2xl transform hover:-translate-y-2 hover:scale-105">
+            <button 
+              onClick={handleStartQuiz}
+              className="bg-white text-quiz-blue hover:bg-gray-50 px-8 py-4 rounded-xl text-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-2xl transform hover:-translate-y-2 hover:scale-105"
+            >
               Mulai Kuis Pertama
             </button>
           </div>
