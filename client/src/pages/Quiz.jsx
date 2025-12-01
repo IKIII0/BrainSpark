@@ -266,12 +266,20 @@ const Quiz = () => {
               </div>
             </div>
 
-            <button
-              onClick={resetQuiz}
-              className="bg-quiz-blue hover:bg-quiz-blue/90 text-white px-8 py-3 rounded-lg text-lg font-semibold transition-colors"
-            >
-              Coba Lagi
-            </button>
+            <div className="flex gap-2 justify-center">
+              <button
+                onClick={resetQuiz}
+                className="bg-quiz-blue hover:bg-quiz-blue/90 text-white px-8 py-3 rounded-lg text-lg font-semibold transition-colors"
+                >
+                Coba Lagi
+              </button>
+              <button
+                onClick={goBackToMateri}
+                className="bg-red-400 hover:bg-red-600 text-white px-8 py-3 rounded-lg text-lg font-semibold transition-colors"
+                >
+                Kembali
+              </button>
+            </div>
           </div>
         </div>
         <Footer />
