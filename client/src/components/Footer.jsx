@@ -6,7 +6,7 @@ const Footer = () => {
           <div className="col-span-1 md:col-span-2">
             <h3 className="text-2xl font-bold mb-4">BrainSpark</h3>
             <p className="text-gray-300 mb-4">
-              Platform terbaik untuk membuat dan mengikuti kuis interaktif.
+              Platform untuk belajar dan mengikuti kuis interaktif.
               Bangkitkan rasa ingin tahu dan perluas pengetahuan Anda.
             </p>
             <div className="flex space-x-4">
@@ -57,11 +57,19 @@ const Footer = () => {
             </div>
           </div>
           <div>
-            <h4 className="text-lg font-semibold mb-4">Produk</h4>
+            <h4 className="text-lg font-semibold mb-4">Link cepat</h4>
             <ul className="space-y-2 text-gray-300">
               <li>
                 <a
                   href="#"
+                  className="hover:text-quiz-yellow transition-colors"
+                >
+                  Home
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#features"
                   className="hover:text-quiz-yellow transition-colors"
                 >
                   Fitur
@@ -69,26 +77,10 @@ const Footer = () => {
               </li>
               <li>
                 <a
-                  href="#"
+                  href="#how-it-works"
                   className="hover:text-quiz-yellow transition-colors"
                 >
-                  Harga
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="hover:text-quiz-yellow transition-colors"
-                >
-                  Template
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="hover:text-quiz-yellow transition-colors"
-                >
-                  API
+                  Tutorial
                 </a>
               </li>
             </ul>
@@ -120,19 +112,11 @@ const Footer = () => {
                   Kebijakan Privasi
                 </a>
               </li>
-              <li>
-                <a
-                  href="#"
-                  className="hover:text-quiz-yellow transition-colors"
-                >
-                  Syarat Layanan
-                </a>
-              </li>
             </ul>
           </div>
         </div>
         <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-300">
-          <p>&copy; 2025 BrainSpark. All rights reserved.</p>
+          <p>&copy; 2025 BrainSpark. All rigths reserved.</p>
         </div>
       </div>
     </footer>
