@@ -13,6 +13,7 @@ const Home = () => {
     if (currentUser) {
       navigate('/choosequiz');
     } else {
+      alert('Silakan login terlebih dahulu untuk memulai kuis');
       navigate('/login');
     }
   };
