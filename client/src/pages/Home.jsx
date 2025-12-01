@@ -49,23 +49,21 @@ const Home = () => {
                 <button className="bg-quiz-blue hover:bg-quiz-blue/90 text-white px-8 py-4 rounded-xl text-lg font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
                   Mulai Kuis Sekarang
                 </button>
-                <button className="border-2 border-quiz-brown text-quiz-brown hover:bg-quiz-brown hover:text-white px-8 py-4 rounded-xl text-lg font-semibold transition-all duration-200">
-                  Buat Kuis
-                </button>
+
               </div>
               <div className="mt-8 flex items-center justify-center lg:justify-start space-x-8">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-quiz-dark">10K+</div>
+                  <div className="text-2xl font-bold text-quiz-dark">117+</div>
                   <div className="text-sm text-quiz-dark/60">
                     Pengguna Aktif
                   </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-quiz-dark">50K+</div>
+                  <div className="text-2xl font-bold text-quiz-dark">3+</div>
                   <div className="text-sm text-quiz-dark/60">Kuis Dibuat</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-quiz-dark">1M+</div>
+                  <div className="text-2xl font-bold text-quiz-dark">147+</div>
                   <div className="text-sm text-quiz-dark/60">Soal Terjawab</div>
                 </div>
               </div>
@@ -139,7 +137,7 @@ const Home = () => {
                 Sangat Cepat
               </h3>
               <p className="text-quiz-dark/70">
-                Pembuatan kuis yang cepat dan hasil instan. Dapatkan umpan balik
+                Tingkatkan pengalaman anda kuis yang cepat dan hasil yang instan. Dapatkan umpan balik
                 langsung setelah setiap pertanyaan.
               </p>
             </div>
@@ -167,7 +165,7 @@ const Home = () => {
                 Kolaboratif
               </h3>
               <p className="text-quiz-dark/70">
-                Bagikan kuis dengan teman, buat tantangan tim, dan belajar
+                Bagikan kuis dengan teman, buat tantangan dengan menguji pengetahuan anda bersama teman, dan belajar
                 bersama.
               </p>
             </div>
@@ -195,7 +193,7 @@ const Home = () => {
                 Analitik
               </h3>
               <p className="text-quiz-dark/70">
-                Lacak kemajuan Anda, identifikasi area yang lemah, dan saksikan
+                Analisis kesalahan perbaiki kebenaran, identifikasi area yang lemah, dan saksikan
                 pengetahuan Anda bertumbuh.
               </p>
             </div>
