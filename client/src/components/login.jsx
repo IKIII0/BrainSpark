@@ -8,6 +8,7 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [fieldError, setFieldError] = useState({});
   
   const { login, loading, isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -36,9 +37,11 @@ export default function Login() {
     e.preventDefault();
     setError('');
     setSuccessMessage('');
+    setFieldError({});
     
     if (!email || !password) {
       setError('Email dan kata sandi wajib diisi.');
+      setFieldError({ email: !email, password: !password });
       return;
     }
 
@@ -104,9 +107,18 @@ export default function Login() {
                 id="email"
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  if (fieldError.email) {
+                    setFieldError((prev) => ({ ...prev, email: false }));
+                  }
+                  setEmail(e.target.value);
+                }}
                 placeholder="nama@email.com"
-                className="w-full px-3 py-2 rounded-lg border border-gray-200 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className={`w-full px-3 py-2 rounded-lg border outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                  fieldError.email
+                    ? 'border-red-400 bg-red-50 focus:ring-red-400 focus:border-red-400'
+                    : 'border-gray-200'
+                }`}
                 autoComplete="email"
               />
             </div>
@@ -118,9 +130,18 @@ export default function Login() {
                   id="password"
                   type={showPassword ? 'text' : 'password'}
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => {
+                    if (fieldError.password) {
+                      setFieldError((prev) => ({ ...prev, password: false }));
+                    }
+                    setPassword(e.target.value);
+                  }}
                   placeholder="••••••••"
-                  className="w-full pr-10 pl-3 py-2 rounded-lg border border-gray-200 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className={`w-full pr-10 pl-3 py-2 rounded-lg border outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                    fieldError.password
+                      ? 'border-red-400 bg-red-50 focus:ring-red-400 focus:border-red-400'
+                      : 'border-gray-200'
+                  }`}
                   autoComplete="current-password"
                 />
                 <button

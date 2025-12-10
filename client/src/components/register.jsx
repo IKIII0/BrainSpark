@@ -12,12 +12,16 @@ export default function Register() {
     no_hp: "",
   });
   const [error, setError] = useState("");
+  const [fieldError, setFieldError] = useState({});
   const [loading, setLoading] = useState(false);
 
   const { register } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
+    if (fieldError[e.target.name]) {
+      setFieldError((prev) => ({ ...prev, [e.target.name]: false }));
+    }
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
@@ -27,6 +31,7 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setFieldError({});
     setLoading(true);
 
     try {
@@ -36,7 +41,15 @@ export default function Register() {
         state: { message: "Registrasi berhasil! Silakan login." },
       });
     } catch (err) {
-      setError(err.message);
+      const message = err.message || "Terjadi kesalahan. Silakan coba lagi.";
+      setError(message);
+
+      if (
+        message.includes("Email atau nomor HP sudah terdaftar") ||
+        message.toLowerCase().includes("sudah terdaftar")
+      ) {
+        setFieldError({ email_user: true, no_hp: true });
+      }
     } finally {
       setLoading(false);
     }
@@ -114,7 +127,11 @@ export default function Register() {
                 value={formData.email_user}
                 onChange={handleChange}
                 placeholder="nama@email.com"
-                className="w-full px-3 py-2 rounded-lg border border-gray-200 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className={`w-full px-3 py-2 rounded-lg border outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                  fieldError.email_user
+                    ? "border-red-400 bg-red-50 focus:ring-red-400 focus:border-red-400"
+                    : "border-gray-200"
+                }`}
                 required
               />
             </div>
@@ -189,7 +206,11 @@ export default function Register() {
                 value={formData.no_hp}
                 onChange={handleChange}
                 placeholder="08123456789"
-                className="w-full px-3 py-2 rounded-lg border border-gray-200 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className={`w-full px-3 py-2 rounded-lg border outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                  fieldError.no_hp
+                    ? "border-red-400 bg-red-50 focus:ring-red-400 focus:border-red-400"
+                    : "border-gray-200"
+                }`}
               />
             </div>
 
