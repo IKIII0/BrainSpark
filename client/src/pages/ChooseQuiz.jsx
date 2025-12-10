@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { materiService } from "../services/materiService";
@@ -92,7 +93,7 @@ const ChooseQuiz = () => {
       });
     } catch (error) {
       console.error("Error creating materi:", error);
-      alert("Gagal membuat materi. Silakan coba lagi.");
+      toast.error("Gagal membuat materi. Silakan coba lagi.");
     }
   };
 
@@ -108,7 +109,7 @@ const ChooseQuiz = () => {
       setMaterials((prev) => prev.filter((m) => m.id !== materialId));
     } catch (error) {
       console.error("Error deleting materi:", error);
-      alert("Gagal menghapus materi. Silakan coba lagi.");
+      toast.error("Gagal menghapus materi. Silakan coba lagi.");
     }
   };
 

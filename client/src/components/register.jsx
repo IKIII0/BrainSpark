@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-hot-toast";
 import { useAuth } from "../context/AuthContext";
 
 export default function Register() {
@@ -44,6 +45,8 @@ export default function Register() {
       const message = err.message || "Terjadi kesalahan. Silakan coba lagi.";
       setError(message);
 
+      toast.error(message);
+
       if (
         message.includes("Email atau nomor HP sudah terdaftar") ||
         message.toLowerCase().includes("sudah terdaftar")
@@ -85,12 +88,6 @@ export default function Register() {
         <p className="mt-1.5 mb-5 text-sm text-gray-500">
           Buat akun baru untuk memulai.
         </p>
-
-        {error ? (
-          <div className="mb-3 p-3 bg-red-50 text-red-700 border border-red-200 rounded-lg text-sm">
-            {error}
-          </div>
-        ) : null}
 
         <form onSubmit={handleSubmit}>
           <div className="flex flex-col gap-3.5">

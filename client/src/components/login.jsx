@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 
 export default function Login() {
@@ -17,8 +18,9 @@ export default function Login() {
   // Show success message from registration redirect
   useEffect(() => {
     if (location.state?.message) {
-      setSuccessMessage(location.state.message);
-      // Clear the message after 5 seconds
+      const msg = location.state.message;
+      setSuccessMessage(msg);
+      toast.success(msg);
       const timer = setTimeout(() => setSuccessMessage(''), 5000);
       return () => clearTimeout(timer);
     }
@@ -40,7 +42,9 @@ export default function Login() {
     setFieldError({});
     
     if (!email || !password) {
-      setError('Email dan kata sandi wajib diisi.');
+      const msg = 'Email dan kata sandi wajib diisi.';
+      setError(msg);
+      toast.error(msg);
       setFieldError({ email: !email, password: !password });
       return;
     }
@@ -54,7 +58,9 @@ export default function Login() {
         navigate('/ChooseQuiz', { replace: true });
       }
     } catch (err) {
-      setError(err?.message || 'Gagal masuk. Coba lagi.');
+      const msg = err?.message || 'Gagal masuk. Coba lagi.';
+      setError(msg);
+      toast.error(msg);
     }
   };
 
@@ -86,18 +92,6 @@ export default function Login() {
         
         <h1 className="m-0 text-2xl font-bold text-gray-900">Masuk</h1>
         <p className="mt-1.5 mb-5 text-sm text-gray-500">Silakan masuk untuk melanjutkan.</p>
-
-        {successMessage ? (
-          <div className="mb-3 p-3 bg-green-50 text-green-700 border border-green-200 rounded-lg text-sm">
-            {successMessage}
-          </div>
-        ) : null}
-
-        {error ? (
-          <div className="mb-3 p-3 bg-red-50 text-red-700 border border-red-200 rounded-lg text-sm">
-            {error}
-          </div>
-        ) : null}
 
         <form onSubmit={handleSubmit}>
           <div className="flex flex-col gap-3.5">
