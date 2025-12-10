@@ -121,10 +121,20 @@ async function createUser(req, res) {
       data: newUser,
     });
   } catch (err) {
+    // Handle duplicate email / phone (PostgreSQL unique_violation code: 23505)
+    if (err && err.code === "23505") {
+      return res.status(409).json({
+        status: "error",
+        code: 409,
+        message: "Email atau nomor HP sudah terdaftar. Silakan gunakan data lain.",
+      });
+    }
+
+    // Fallback generic error (do not expose internal error message)
     res.status(500).json({
       status: "error",
       code: 500,
-      message: err.message,
+      message: "Terjadi kesalahan pada server. Silakan coba lagi nanti.",
     });
   }
 }
