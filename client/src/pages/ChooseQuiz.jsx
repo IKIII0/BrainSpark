@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
+import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { materiService } from "../services/materiService";
@@ -100,7 +101,18 @@ const ChooseQuiz = () => {
   const handleDeleteMaterial = async (materialId) => {
     if (!isAdmin) return;
 
-    if (!window.confirm("Apakah Anda yakin ingin menghapus materi ini?")) {
+    const result = await Swal.fire({
+      title: "Hapus materi?",
+      text: "Materi dan soal-soalnya akan dihapus.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Ya, hapus",
+      cancelButtonText: "Batal",
+      confirmButtonColor: "#dc2626",
+      cancelButtonColor: "#6b7280",
+    });
+
+    if (!result.isConfirmed) {
       return;
     }
 
