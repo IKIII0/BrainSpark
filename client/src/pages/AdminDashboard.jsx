@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { materiService } from '../services/materiService';
@@ -70,7 +71,7 @@ const AdminDashboard = () => {
 
     const trimmedTitle = newMaterial.title.trim();
     if (!trimmedTitle) {
-      alert('Judul materi wajib diisi');
+      toast.error('Judul materi wajib diisi');
       return;
     }
 
@@ -107,7 +108,7 @@ const AdminDashboard = () => {
         questionsCount: 10,
       });
       setShowAddForm(false);
-      alert('Materi berhasil ditambahkan!');
+      toast.success('Materi berhasil ditambahkan!');
     } catch (error) {
       console.error('Full error object:', error);
       console.error('Error response:', error.response);
@@ -123,8 +124,8 @@ const AdminDashboard = () => {
       } else {
         errorMessage += 'Silakan coba lagi.';
       }
-      
-      alert(errorMessage);
+
+      toast.error(errorMessage);
     }
   };
 
@@ -136,10 +137,10 @@ const AdminDashboard = () => {
     try {
       await materiService.deleteMateri(materialId);
       setMaterials((prev) => prev.filter(m => m.id !== materialId));
-      alert('Materi berhasil dihapus!');
+      toast.success('Materi berhasil dihapus!');
     } catch (error) {
       console.error('Error deleting materi:', error);
-      alert('Gagal menghapus materi: ' + (error.response?.data?.message || error.message));
+      toast.error('Gagal menghapus materi: ' + (error.response?.data?.message || error.message));
     }
   };
 
@@ -157,7 +158,7 @@ const AdminDashboard = () => {
       setShowQuizForm(true);
     } catch (error) {
       console.error('Error fetching quizzes:', error);
-      alert('Gagal memuat quiz: ' + (error.response?.data?.message || error.message));
+      toast.error('Gagal memuat quiz: ' + (error.response?.data?.message || error.message));
     } finally {
       setQuizLoading(false);
     }
@@ -187,14 +188,14 @@ const AdminDashboard = () => {
     
     const trimmedQuestion = newQuiz.question.trim();
     if (!trimmedQuestion || !newQuiz.materi_id) {
-      alert('Pertanyaan dan materi wajib diisi');
+      toast.error('Pertanyaan dan materi wajib diisi');
       return;
     }
 
     // Check if all options are filled
     const hasEmptyOptions = newQuiz.options.some(option => !option.trim());
     if (hasEmptyOptions) {
-      alert('Semua opsi jawaban wajib diisi');
+      toast.error('Semua opsi jawaban wajib diisi');
       return;
     }
 
@@ -219,11 +220,10 @@ const AdminDashboard = () => {
         options: ['', '', '', ''],
         correct_answer: 0,
       });
-      
-      alert('Quiz berhasil ditambahkan!');
+      toast.success('Quiz berhasil ditambahkan!');
     } catch (error) {
       console.error('Error adding quiz:', error);
-      alert('Gagal menambah quiz: ' + (error.response?.data?.message || error.message));
+      toast.error('Gagal menambah quiz: ' + (error.response?.data?.message || error.message));
     }
   };
 
@@ -235,10 +235,10 @@ const AdminDashboard = () => {
     try {
       await quizService.deleteQuiz(quizId);
       setQuizzes(prev => prev.filter(q => q.id !== quizId));
-      alert('Soal quiz berhasil dihapus!');
+      toast.success('Soal quiz berhasil dihapus!');
     } catch (error) {
       console.error('Error deleting quiz:', error);
-      alert('Gagal menghapus quiz: ' + (error.response?.data?.message || error.message));
+      toast.error('Gagal menghapus quiz: ' + (error.response?.data?.message || error.message));
     }
   };
 
