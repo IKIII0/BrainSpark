@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { useAuth } from "../context/AuthContext";
+import { toast } from "react-hot-toast";
 
 const Home = () => {
   const [scrollY, setScrollY] = useState(0);
@@ -13,7 +14,7 @@ const Home = () => {
     if (currentUser) {
       navigate('/choosequiz');
     } else {
-      alert('Silakan login terlebih dahulu untuk memulai kuis');
+      toast.error('Silakan login terlebih dahulu untuk memulai kuis');
       navigate('/login');
     }
   };
