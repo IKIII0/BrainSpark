@@ -266,6 +266,68 @@ const Quiz = () => {
               </div>
             </div>
 
+            {/* Review Jawaban */}
+            <div className="text-left mt-8">
+              <h3 className="text-xl font-semibold text-quiz-dark mb-4">
+                Review Jawaban
+              </h3>
+              <p className="text-sm text-gray-600 mb-4">
+                Hijau = jawaban benar, Merah = jawaban yang kamu pilih tetapi salah.
+              </p>
+              <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2">
+                {quiz.questions.map((question, qIndex) => (
+                  <div
+                    key={question.id}
+                    className="border border-gray-200 rounded-lg p-4 text-sm"
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <p className="font-medium text-quiz-dark">
+                        {qIndex + 1}. {question.question}
+                      </p>
+                      <span className={`ml-4 text-xs font-semibold px-2 py-1 rounded-full ${
+                        answers[qIndex] === question.correctAnswer
+                          ? "bg-green-100 text-green-700"
+                          : "bg-red-100 text-red-700"
+                      }`}>
+                        {answers[qIndex] === question.correctAnswer
+                          ? "Benar"
+                          : "Salah"}
+                      </span>
+                    </div>
+
+                    <div className="mt-2 space-y-1">
+                      {question.options.map((option, optIndex) => {
+                        const isCorrect = optIndex === question.correctAnswer;
+                        const isUserChoice = answers[qIndex] === optIndex;
+
+                        let optionClass =
+                          "border border-gray-200 bg-gray-50 text-gray-700";
+                        if (isCorrect) {
+                          optionClass =
+                            "border border-green-500 bg-green-50 text-green-800";
+                        } else if (isUserChoice) {
+                          optionClass =
+                            "border border-red-500 bg-red-50 text-red-800";
+                        }
+
+                        return (
+                          <div
+                            key={optIndex}
+                            className={`px-3 py-2 rounded-md text-xs md:text-sm ${optionClass}`}
+                          >
+                            <span className="font-semibold mr-1">
+                              {String.fromCharCode(65 + optIndex)}.
+                            </span>
+                            {option}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             <div className="flex gap-2 justify-center">
               <button
                 onClick={resetQuiz}
