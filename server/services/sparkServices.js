@@ -77,13 +77,31 @@ async function createUser(data) {
 }
 
 async function updateUser(id, data) {
-  const { nama_user, email_user, pass, nim, universitas, no_hp } = data;
+  // Ambil user existing dulu
+  const existing = await getUserById(id);
+  if (!existing) return null;
+
+  const {
+    nama_user = existing.nama_user,
+    email_user = existing.email_user,
+    pass,
+    nim = existing.nim,
+    universitas = existing.universitas,
+    no_hp = existing.no_hp,
+  } = data;
+
+  // Jika pass baru dikirim, hash dulu. Kalau tidak, pakai pass lama.
+  let newPass = existing.pass;
+  if (typeof pass === "string" && pass.trim() !== "") {
+    newPass = await passwordUtils.hashPassword(pass);
+  }
+
   const result = await pool.query(
     `UPDATE users 
     SET nama_user = $1, email_user = $2, pass = $3, nim = $4, universitas = $5, no_hp = $6
     WHERE id = $7 
     RETURNING *`,
-    [nama_user, email_user, pass, nim, universitas, no_hp, id]
+    [nama_user, email_user, newPass, nim, universitas, no_hp, id]
   );
   return result.rows[0];
 }
