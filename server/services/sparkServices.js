@@ -240,6 +240,26 @@ async function deleteQuiz(id) {
   return result.rows[0];
 }
 
+// Activity logs service
+async function createActivityLog({ admin_email, admin_name, action, entity_type, entity_id, description }) {
+  await pool.query(
+    `INSERT INTO activity_logs 
+      (admin_email, admin_name, action, entity_type, entity_id, description)
+     VALUES ($1, $2, $3, $4, $5, $6)`,
+    [admin_email, admin_name, action, entity_type, entity_id, description]
+  );
+}
+
+async function getActivityLogs(limit = 100) {
+  const result = await pool.query(
+    `SELECT * FROM activity_logs
+     ORDER BY created_at DESC
+     LIMIT $1`,
+    [limit]
+  );
+  return result.rows;
+}
+
 module.exports = {
   // Admin services
   getAllAdmins,
@@ -268,4 +288,8 @@ module.exports = {
   createQuiz,
   updateQuiz,
   deleteQuiz,
+
+  // Activity logs
+  createActivityLog,
+  getActivityLogs,
 };
