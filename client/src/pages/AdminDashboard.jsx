@@ -283,7 +283,8 @@ const AdminDashboard = () => {
     const materiForQuiz = materials.find((m) => m.id === newQuiz.materi_id);
     const maxQuestions = materiForQuiz?.questionsCount ?? null;
 
-    if (maxQuestions !== null && quizzes.length >= maxQuestions) {
+    // Batasi hanya saat menambah soal baru, bukan saat edit soal yang sudah ada
+    if (!editingQuizId && maxQuestions !== null && quizzes.length >= maxQuestions) {
       toast.error(`Jumlah soal sudah mencapai batas untuk materi ini (${maxQuestions} soal).`);
       return;
     }
