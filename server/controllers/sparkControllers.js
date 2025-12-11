@@ -294,6 +294,18 @@ async function createMateri(req, res) {
     const newMateri = await eventsService.createMateri(req.body);
     console.log("✅ Materi created:", newMateri);
 
+    // Log activity
+    if (req.admin) {
+      await eventsService.createActivityLog({
+        admin_email: req.admin.email,
+        admin_name: req.admin.nama_admin,
+        action: "CREATE_MATERI",
+        entity_type: "MATERI",
+        entity_id: newMateri.id,
+        description: `Tambah materi "${newMateri.nama_materi}" (level: ${newMateri.level})`,
+      });
+    }
+
     res.status(201).json({
       status: "success",
       code: 201,
@@ -323,6 +335,16 @@ async function updateMateri(req, res) {
         message: "Materi not found",
       });
     }
+    if (req.admin && updatedMateri) {
+      await eventsService.createActivityLog({
+        admin_email: req.admin.email,
+        admin_name: req.admin.nama_admin,
+        action: "UPDATE_MATERI",
+        entity_type: "MATERI",
+        entity_id: updatedMateri.id,
+        description: `Update materi "${updatedMateri.nama_materi}"`,
+      });
+    }
     res.status(200).json({
       status: "success",
       code: 200,
@@ -347,6 +369,16 @@ async function deleteMateri(req, res) {
         status: "error",
         code: 404,
         message: "Materi not found",
+      });
+    }
+    if (req.admin && deletedMateri) {
+      await eventsService.createActivityLog({
+        admin_email: req.admin.email,
+        admin_name: req.admin.nama_admin,
+        action: "DELETE_MATERI",
+        entity_type: "MATERI",
+        entity_id: deletedMateri.id,
+        description: `Hapus materi "${deletedMateri.nama_materi}"`,
       });
     }
     res.status(200).json({
@@ -403,6 +435,16 @@ async function getQuizByMateriId(req, res) {
 async function createQuiz(req, res) {
   try {
     const newQuiz = await eventsService.createQuiz(req.body);
+    if (req.admin && newQuiz) {
+      await eventsService.createActivityLog({
+        admin_email: req.admin.email,
+        admin_name: req.admin.nama_admin,
+        action: "CREATE_QUIZ",
+        entity_type: "QUIZ",
+        entity_id: newQuiz.id,
+        description: `Tambah soal untuk materi_id=${newQuiz.materi_id}`,
+      });
+    }
     res.status(201).json(newQuiz);
   } catch (error) {
     console.error("Error createQuiz:", error);
@@ -415,6 +457,16 @@ async function updateQuiz(req, res) {
   try {
     const { id } = req.params;
     const updatedQuiz = await eventsService.updateQuiz(id, req.body);
+    if (req.admin && updatedQuiz) {
+      await eventsService.createActivityLog({
+        admin_email: req.admin.email,
+        admin_name: req.admin.nama_admin,
+        action: "UPDATE_QUIZ",
+        entity_type: "QUIZ",
+        entity_id: updatedQuiz.id,
+        description: `Update soal id=${updatedQuiz.id} untuk materi_id=${updatedQuiz.materi_id}`,
+      });
+    }
     res.json(updatedQuiz);
   } catch (error) {
     console.error("Error updateQuiz:", error);
@@ -427,10 +479,37 @@ async function deleteQuiz(req, res) {
   try {
     const { id } = req.params;
     const deletedQuiz = await eventsService.deleteQuiz(id);
+    if (req.admin && deletedQuiz) {
+      await eventsService.createActivityLog({
+        admin_email: req.admin.email,
+        admin_name: req.admin.nama_admin,
+        action: "DELETE_QUIZ",
+        entity_type: "QUIZ",
+        entity_id: deletedQuiz.id,
+        description: `Hapus soal id=${deletedQuiz.id} untuk materi_id=${deletedQuiz.materi_id}`,
+      });
+    }
     res.json(deletedQuiz);
   } catch (error) {
     console.error("Error deleteQuiz:", error);
     res.status(500).json({ message: "Internal server error" });
+  }
+}
+
+// Activity logs controller
+async function getActivityLogs(req, res) {
+  try {
+    const logs = await eventsService.getActivityLogs();
+    res.status(200).json({
+      status: "success",
+      data: logs,
+    });
+  } catch (error) {
+    console.error("Error getActivityLogs:", error);
+    res.status(500).json({
+      status: "error",
+      message: "Internal server error",
+    });
   }
 }
 
@@ -453,4 +532,5 @@ module.exports = {
   createQuiz, 
   updateQuiz,
   deleteQuiz,
+  getActivityLogs,
 };

@@ -19,6 +19,7 @@ const {
   createQuiz,
   updateQuiz,
   deleteQuiz,
+  getActivityLogs,
 } = require("../controllers/sparkControllers");
 
 const router = express.Router();
@@ -42,12 +43,14 @@ router.put("/materi/:id", isAdmin, updateMateri);
 router.delete("/materi/:id", isAdmin, deleteMateri);
 
 // Quiz Routes
-// Quiz Routes
 router.get("/quiz", getAllQuiz);
 router.get("/quiz/materi/:id", getQuizByMateriId);
 router.post("/quiz", isAdmin, createQuiz);
 router.put("/quiz/:id", isAdmin, updateQuiz);
 router.delete("/quiz/:id", isAdmin, deleteQuiz);
+
+// Activity Logs Routes
+router.get("/activity-logs", isAdmin, getActivityLogs);
 
 // Auth Routes
 router.post("/login", login);
