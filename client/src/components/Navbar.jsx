@@ -144,6 +144,12 @@ const Navbar = ({ onNavigate }) => {
           <div className="md:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white rounded-lg mt-2 shadow-lg">
               <button
+                onClick={() => handleNavigation('home')}
+                className="block w-full text-left text-quiz-dark hover:text-quiz-blue px-3 py-2 transition-all duration-300 hover:bg-quiz-light/30"
+              >
+                Home
+              </button>
+              <button
                 onClick={() => handleNavigation('features')}
                 className="block w-full text-left text-quiz-dark hover:text-quiz-blue px-3 py-2 transition-all duration-300 hover:bg-quiz-light/30"
               >
