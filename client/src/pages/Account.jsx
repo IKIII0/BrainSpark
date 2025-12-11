@@ -11,7 +11,6 @@ const Account = () => {
   const [userProfile, setUserProfile] = useState(null);
   const [stats, setStats] = useState({
     quizzesTaken: 0,
-    quizzesCreated: 0,
     totalScore: 0,
     averageScore: 0,
     streak: 0
@@ -326,10 +325,6 @@ const Account = () => {
                     <div className="bg-gradient-to-r from-quiz-blue to-quiz-blue/80 p-6 rounded-lg text-white">
                       <h3 className="text-lg font-semibold mb-2">Kuis Diikuti</h3>
                       <p className="text-3xl font-bold">{stats.quizzesTaken}</p>
-                    </div>
-                    <div className="bg-gradient-to-r from-quiz-brown to-quiz-brown/80 p-6 rounded-lg text-white">
-                      <h3 className="text-lg font-semibold mb-2">Kuis Dibuat</h3>
-                      <p className="text-3xl font-bold">{stats.quizzesCreated}</p>
                     </div>
                     <div className="bg-gradient-to-r from-quiz-yellow to-quiz-yellow/80 p-6 rounded-lg text-quiz-dark">
                       <h3 className="text-lg font-semibold mb-2">Total Skor</h3>

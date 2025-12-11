@@ -10,6 +10,9 @@ const {
   deleteUser,
   login,
   loginWithGoogle,
+  getUserStats,
+  getUserQuizHistory,
+  createUserQuizResult,
   getAllMateri,
   getMateriById,
   createMateri,
@@ -35,6 +38,9 @@ router.get("/users/:id", getUserById);
 router.post("/users", createUser);
 router.put("/users/:id", updateUser);
 router.delete("/users/:id", deleteUser);
+router.get("/users/:id/stats", getUserStats);
+router.get("/users/:id/quizzes", getUserQuizHistory);
+router.post("/users/:id/quizzes", createUserQuizResult);
 
 // Materi Routes
 router.get("/materi", getAllMateri);

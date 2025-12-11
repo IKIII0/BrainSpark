@@ -9,6 +9,26 @@ async function getAllAdmins() {
   return result.rows;
 }
 
+async function createUserQuizResult(userId, data) {
+  const {
+    materi_id,
+    score,
+    total_questions,
+    correct_answers,
+    duration_seconds = null,
+  } = data;
+
+  const result = await pool.query(
+    `INSERT INTO quiz_results
+       (user_id, materi_id, score, total_questions, correct_answers, duration_seconds)
+     VALUES ($1, $2, $3, $4, $5, $6)
+     RETURNING *`,
+    [userId, materi_id, score, total_questions, correct_answers, duration_seconds]
+  );
+
+  return result.rows[0];
+}
+
 async function getAdminByEmail(email) {
   const result = await pool.query("SELECT * FROM admin WHERE email = $1", [
     email,
@@ -129,6 +149,50 @@ async function createUserFromGoogle({ email, name }) {
     [name, email, "google-auth", null, null, null]
   );
   return result.rows[0];
+}
+
+// User stats & history services
+async function getUserStats(userId) {
+  const result = await pool.query(
+    `SELECT
+       COUNT(*)                         AS "quizzesTaken",
+       COALESCE(SUM(score), 0)          AS "totalScore",
+       COALESCE(ROUND(AVG(score)::numeric, 2), 0) AS "averageScore",
+       0                                AS "streak"
+     FROM quiz_results
+     WHERE user_id = $1`,
+    [userId]
+  );
+
+  return result.rows[0] || {
+    quizzesTaken: 0,
+    totalScore: 0,
+    averageScore: 0,
+    streak: 0,
+  };
+}
+
+async function getUserQuizHistory(userId) {
+  const result = await pool.query(
+    `SELECT
+       qr.id,
+       qr.materi_id,
+       m.nama_materi,
+       m.level,
+       qr.score,
+       qr.total_questions,
+       qr.correct_answers,
+       qr.duration_seconds,
+       qr.created_at
+     FROM quiz_results qr
+     JOIN materi m ON qr.materi_id = m.id
+     WHERE qr.user_id = $1
+     ORDER BY qr.created_at DESC
+     LIMIT 50`,
+    [userId]
+  );
+
+  return result.rows;
 }
 
 // Di sparkServices.js - Ganti function login dengan ini:
@@ -311,6 +375,9 @@ module.exports = {
   getUserByEmail,
   createUserFromGoogle,
   login,
+  getUserStats,
+  getUserQuizHistory,
+  createUserQuizResult,
 
   // Materi services
   getAllMateri,
