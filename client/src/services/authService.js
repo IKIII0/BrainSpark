@@ -26,6 +26,16 @@ export const authService = {
     }
   },
 
+  async loginWithGoogle(idToken) {
+    try {
+      const response = await api.post('/login/google', { idToken });
+      console.log('Google login response:', response.data);
+      return response.data.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || error.message || 'Login Google gagal');
+    }
+  },
+
   async register(userData) {
     try {
       console.log("Sending registration data:", userData);

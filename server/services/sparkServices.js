@@ -96,6 +96,22 @@ async function deleteUser(id) {
   return result.rows[0];
 }
 
+async function getUserByEmail(email) {
+  const result = await pool.query(
+    "SELECT * FROM users WHERE email_user = $1",
+    [email]
+  );
+  return result.rows[0];
+}
+
+async function createUserFromGoogle({ email, name }) {
+  const result = await pool.query(
+    "INSERT INTO users (nama_user, email_user, pass, nim, universitas, no_hp) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *",
+    [name, email, null, null, null, null]
+  );
+  return result.rows[0];
+}
+
 // Di sparkServices.js - Ganti function login dengan ini:
 async function login(email, password) {
   console.log("Login attempt for email:", email);
@@ -273,6 +289,8 @@ module.exports = {
   createUser,
   updateUser,
   deleteUser,
+  getUserByEmail,
+  createUserFromGoogle,
   login,
 
   // Materi services

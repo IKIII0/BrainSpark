@@ -77,6 +77,51 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const loginWithGoogle = async (idToken) => {
+    setLoading(true);
+    try {
+      const response = await authService.loginWithGoogle(idToken);
+      console.log('Google Auth response:', response);
+
+      if (response.isAdmin) {
+        const userData = {
+          id: 'admin',
+          email: response.email,
+          name: response.nama || 'Administrator',
+          avatar: `https://ui-avatars.com/api/?name=Administrator&background=3b82f6&color=fff`,
+          isAdmin: true,
+        };
+
+        setUser(userData);
+        localStorage.setItem('user', JSON.stringify(userData));
+        return userData;
+      }
+
+      const displayName = response.nama_user || response.email?.split('@')[0] || 'User';
+
+      const userData = {
+        id: response.id,
+        email: response.email,
+        name: displayName,
+        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=3b82f6&color=fff`,
+        nim: response.nim || '',
+        university: response.universitas || '',
+        no_hp: response.no_hp || '',
+        joinDate: new Date().toISOString(),
+        isAdmin: false,
+      };
+
+      setUser(userData);
+      localStorage.setItem('user', JSON.stringify(userData));
+
+      return userData;
+    } catch (error) {
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const register = async (userData) => {
     setLoading(true);
     try {
@@ -97,6 +142,7 @@ export const AuthProvider = ({ children }) => {
   const value = {
     user,
     login,
+    loginWithGoogle,
     register,
     logout,
     loading,

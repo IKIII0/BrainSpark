@@ -1,5 +1,6 @@
 const eventsService = require("../services/sparkServices");
 const { isAdmin } = require("../middleware/adminAuth");
+const { verifyGoogleIdToken } = require("../utils/googleVerify");
 
 // ADMIN CONTROLLERS
 async function getAllAdmins(req, res) {
@@ -12,6 +13,73 @@ async function getAllAdmins(req, res) {
       data: admins,
     });
   } catch (err) {
+    res.status(500).json({
+      status: "error",
+      code: 500,
+      message: err.message,
+    });
+  }
+}
+
+async function loginWithGoogle(req, res) {
+  try {
+    const { idToken } = req.body;
+
+    if (!idToken) {
+      return res.status(400).json({
+        status: "error",
+        code: 400,
+        message: "Missing idToken",
+      });
+    }
+
+    const { email, name } = await verifyGoogleIdToken(idToken);
+
+    if (!email) {
+      return res.status(400).json({
+        status: "error",
+        code: 400,
+        message: "Email tidak ditemukan pada token Google",
+      });
+    }
+
+    // Cek apakah email ini admin
+    const admin = await eventsService.getAdminByEmail(email);
+    if (admin) {
+      return res.status(200).json({
+        status: "success",
+        code: 200,
+        message: "Admin login via Google successful",
+        data: {
+          email: admin.email,
+          nama: admin.nama_admin,
+          isAdmin: true,
+        },
+      });
+    }
+
+    // Jika bukan admin, cek / buat user biasa
+    let user = await eventsService.getUserByEmail(email);
+    if (!user) {
+      user = await eventsService.createUserFromGoogle({ email, name });
+    }
+
+    return res.status(200).json({
+      status: "success",
+      code: 200,
+      message: "User login via Google successful",
+      data: {
+        id: user.id,
+        email: user.email_user,
+        nama_user: user.nama_user,
+        nim: user.nim,
+        universitas: user.universitas,
+        no_hp: user.no_hp,
+        isAdmin: false,
+      },
+    });
+  } catch (err) {
+    console.error("loginWithGoogle error:", err);
     res.status(500).json({
       status: "error",
       code: 500,
@@ -522,6 +590,7 @@ module.exports = {
   updateUser,
   deleteUser,
   login,
+  loginWithGoogle,
   getAllMateri,
   getMateriById,
   createMateri,

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
+import { signInWithPopup } from 'firebase/auth';
+import { firebaseAuth, googleProvider } from '../firebase';
 import { useAuth } from '../context/AuthContext';
 
 export default function Login() {
@@ -11,7 +13,7 @@ export default function Login() {
   const [successMessage, setSuccessMessage] = useState('');
   const [fieldError, setFieldError] = useState({});
   
-  const { login, loading, isAuthenticated } = useAuth();
+  const { login, loginWithGoogle, loading, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -59,6 +61,30 @@ export default function Login() {
       }
     } catch (err) {
       const msg = err?.message || 'Gagal masuk. Coba lagi.';
+      setError(msg);
+      toast.error(msg);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setError('');
+    setSuccessMessage('');
+
+    try {
+      const result = await signInWithPopup(firebaseAuth, googleProvider);
+      const user = result.user;
+      const idToken = await user.getIdToken();
+
+      const loginResult = await loginWithGoogle(idToken);
+
+      if (loginResult?.isAdmin) {
+        navigate('/admin', { replace: true });
+      } else {
+        navigate('/ChooseQuiz', { replace: true });
+      }
+    } catch (err) {
+      console.error('Google login error:', err);
+      const msg = err?.message || 'Gagal masuk dengan Google. Coba lagi.';
       setError(msg);
       toast.error(msg);
     }
@@ -158,10 +184,11 @@ export default function Login() {
 
             <button 
                 type="button" 
-                className="flex items-center justify-center gap-2 py-2 px-3 bg-white border border-gray-600 rounded-lg hover:bg-blue-600/700 hover:text-blue-900 transition-colors hover:border-blue-800"
+                onClick={handleGoogleLogin}
+                className="flex items-center justify-center gap-2 py-2 px-3 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors"
             >
                 <img src="./google.svg" alt="google" className="w-5"/>
-                <span className="ml-2">Google</span>
+                <span className="ml-2 text-sm font-medium text-gray-700">Masuk dengan Google</span>
             </button>
           </div>
         </form>
