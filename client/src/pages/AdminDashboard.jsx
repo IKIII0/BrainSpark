@@ -21,6 +21,7 @@ const AdminDashboard = () => {
   const [selectedMateri, setSelectedMateri] = useState(null);
   const [quizzes, setQuizzes] = useState([]);
   const [quizLoading, setQuizLoading] = useState(false);
+  const [editingQuizId, setEditingQuizId] = useState(null);
   const [newQuiz, setNewQuiz] = useState({
     materi_id: '',
     question: '',
@@ -235,6 +236,7 @@ const AdminDashboard = () => {
     try {
       setQuizLoading(true);
       setSelectedMateri(materiId);
+      setEditingQuizId(null);
       setNewQuiz(prev => ({
         ...prev,
         materi_id: materiId
@@ -294,14 +296,37 @@ const AdminDashboard = () => {
     }
 
     try {
+      if (editingQuizId) {
+        const result = await Swal.fire({
+          title: 'Simpan perubahan soal?',
+          text: 'Perubahan pada soal akan disimpan.',
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonText: 'Ya, simpan',
+          cancelButtonText: 'Batal',
+          confirmButtonColor: '#2563eb',
+          cancelButtonColor: '#6b7280',
+        });
+
+        if (!result.isConfirmed) {
+          return;
+        }
+      }
+
       const quizData = {
-        materi_id: newQuiz.materi_id,
         question: trimmedQuestion,
         options: newQuiz.options,
         correct_answer: newQuiz.correct_answer
       };
 
-      const createdQuiz = await quizService.createQuiz(quizData);
+      if (editingQuizId) {
+        await quizService.updateQuiz(editingQuizId, quizData);
+      } else {
+        await quizService.createQuiz({
+          ...quizData,
+          materi_id: newQuiz.materi_id,
+        });
+      }
       
       // Refresh quizzes list
       const updatedQuizzes = await quizService.getQuizByMateriId(newQuiz.materi_id);
@@ -314,7 +339,8 @@ const AdminDashboard = () => {
         options: ['', '', '', ''],
         correct_answer: 0,
       });
-      toast.success('Quiz berhasil ditambahkan!');
+      setEditingQuizId(null);
+      toast.success(editingQuizId ? 'Quiz berhasil diperbarui!' : 'Quiz berhasil ditambahkan!');
     } catch (error) {
       console.error('Error adding quiz:', error);
       toast.error('Gagal menambah quiz: ' + (error.response?.data?.message || error.message));
@@ -340,6 +366,15 @@ const AdminDashboard = () => {
     try {
       await quizService.deleteQuiz(quizId);
       setQuizzes(prev => prev.filter(q => q.id !== quizId));
+      if (editingQuizId === quizId) {
+        setEditingQuizId(null);
+        setNewQuiz(prev => ({
+          ...prev,
+          question: '',
+          options: ['', '', '', ''],
+          correct_answer: 0,
+        }));
+      }
       toast.success('Soal quiz berhasil dihapus!');
     } catch (error) {
       console.error('Error deleting quiz:', error);
@@ -721,6 +756,7 @@ const AdminDashboard = () => {
                       setShowQuizForm(false);
                       setSelectedMateri(null);
                       setQuizzes([]);
+                      setEditingQuizId(null);
                     }}
                     className="text-gray-500 hover:text-gray-700"
                   >
@@ -732,9 +768,11 @@ const AdminDashboard = () => {
               </div>
 
               <div className="p-6">
-                {/* Add Quiz Form */}
+                {/* Add / Edit Quiz Form */}
                 <div className="mb-8">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-4">Tambah Soal Baru</h3>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                    {editingQuizId ? 'Edit Soal' : 'Tambah Soal Baru'}
+                  </h3>
                   <form onSubmit={handleAddQuiz} className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -788,12 +826,29 @@ const AdminDashboard = () => {
                       </select>
                     </div>
 
-                    <div className="flex justify-end">
+                    <div className="flex justify-end space-x-3">
+                      {editingQuizId && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditingQuizId(null);
+                            setNewQuiz(prev => ({
+                              ...prev,
+                              question: '',
+                              options: ['', '', '', ''],
+                              correct_answer: 0,
+                            }));
+                          }}
+                          className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                        >
+                          Batal Edit
+                        </button>
+                      )}
                       <button
                         type="submit"
                         className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
                       >
-                        Tambah Soal
+                        {editingQuizId ? 'Simpan Perubahan' : 'Tambah Soal'}
                       </button>
                     </div>
                   </form>
@@ -849,14 +904,53 @@ const AdminDashboard = () => {
                                 ))}
                               </div>
                             </div>
-                            <button
-                              onClick={() => handleDeleteQuiz(quiz.id)}
-                              className="ml-4 text-red-600 hover:text-red-800"
-                            >
-                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                              </svg>
-                            </button>
+                            <div className="ml-4 flex flex-col space-y-2">
+                              <button
+                                onClick={() => {
+                                  setEditingQuizId(quiz.id);
+                                  let options = quiz.options;
+                                  if (!Array.isArray(options)) {
+                                    try {
+                                      options = JSON.parse(options || '[]');
+                                    } catch {
+                                      options = [];
+                                    }
+                                  }
+                                  const normalizedOptions = [0, 1, 2, 3].map(i => options[i] || '');
+                                  setNewQuiz({
+                                    materi_id: selectedMateri,
+                                    question: quiz.question || '',
+                                    options: normalizedOptions,
+                                    correct_answer: quiz.correct_answer ?? 0,
+                                  });
+                                }}
+                                className="text-blue-600 hover:text-blue-800 flex items-center justify-center"
+                                aria-label="Edit soal"
+                              >
+                                <svg
+                                  className="w-5 h-5"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M15.232 5.232l3.536 3.536M4 20h4.5L19 9.5a1.5 1.5 0 000-2.121l-2.379-2.379a1.5 1.5 0 00-2.121 0L4 15.5V20z"
+                                  />
+                                </svg>
+                                <span className="sr-only">Edit</span>
+                              </button>
+                              <button
+                                onClick={() => handleDeleteQuiz(quiz.id)}
+                                className="text-red-600 hover:text-red-800"
+                              >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                              </button>
+                            </div>
                           </div>
                         </div>
                       ))}
