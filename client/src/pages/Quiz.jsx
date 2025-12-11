@@ -3,6 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { quizService } from "../services/quizService";
 import { materiService } from "../services/materiService";
+import { userService } from "../services/userService";
+import { toast } from "react-hot-toast";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
@@ -107,8 +109,29 @@ const Quiz = () => {
     }
   };
 
-  const completeQuiz = () => {
-    setQuizCompleted(true);
+  const completeQuiz = async () => {
+    // Simpan hasil kuis ke backend jika user login
+    try {
+      if (user?.id && quiz && id) {
+        const totalQuestions = quiz.questions.length;
+        const correctAnswers = quiz.questions.filter(
+          (_, index) => answers[index] === quiz.questions[index].correctAnswer
+        ).length;
+        const score = Math.round((correctAnswers / totalQuestions) * 100);
+
+        await userService.createUserQuizResult(user.id, {
+          materi_id: Number(id),
+          score,
+          total_questions: totalQuestions,
+          correct_answers: correctAnswers,
+        });
+      }
+    } catch (err) {
+      console.error("Gagal menyimpan hasil kuis:", err);
+      toast.error("Gagal menyimpan hasil kuis. Statistik mungkin tidak terupdate.");
+    } finally {
+      setQuizCompleted(true);
+    }
   };
 
   const calculateScore = () => {

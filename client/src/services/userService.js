@@ -71,7 +71,6 @@ export const userService = {
       // Return default stats if API fails
       return {
         quizzesTaken: 0,
-        quizzesCreated: 0,
         totalScore: 0,
         averageScore: 0,
         streak: 0,
@@ -88,6 +87,17 @@ export const userService = {
       console.error("Error fetching quiz history:", error);
       // Return empty array if API fails
       return [];
+    }
+  },
+
+  // Create a new quiz result for user
+  async createUserQuizResult(userId, payload) {
+    try {
+      const response = await api.post(`/users/${userId}/quizzes`, payload);
+      return response.data;
+    } catch (error) {
+      console.error("Error creating quiz result:", error);
+      throw error;
     }
   },
 };
