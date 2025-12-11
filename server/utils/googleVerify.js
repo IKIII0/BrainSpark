@@ -1,20 +1,29 @@
-const { OAuth2Client } = require("google-auth-library");
+const admin = require("firebase-admin");
 
-// GOOGLE_CLIENT_ID harus diisi di file .env sesuai Client ID dari Firebase project
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+// Inisialisasi firebase-admin sekali saja.
+// - Di Vercel: gunakan env FIREBASE_SERVICE_ACCOUNT (isi JSON service account)
+// - Di lokal: fallback ke GOOGLE_APPLICATION_CREDENTIALS (applicationDefault)
+if (!admin.apps.length) {
+  if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+    const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount),
+    });
+  } else {
+    admin.initializeApp({
+      credential: admin.credential.applicationDefault(),
+    });
+  }
+}
 
 async function verifyGoogleIdToken(idToken) {
-  const ticket = await client.verifyIdToken({
-    idToken,
-    audience: process.env.GOOGLE_CLIENT_ID,
-  });
-
-  const payload = ticket.getPayload();
+  const decoded = await admin.auth().verifyIdToken(idToken);
 
   return {
-    email: payload.email,
-    name: payload.name,
-    picture: payload.picture,
+    email: decoded.email,
+    name: decoded.name || decoded.email,
+    picture: decoded.picture,
   };
 }
 

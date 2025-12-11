@@ -5,6 +5,9 @@
 .env.test.local
 .env.production.local
 
+# Firebase admin service account
+server/service-account.json
+
 # Dependencies
 node_modules/
 npm-debug.log*
