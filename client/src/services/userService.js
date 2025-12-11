@@ -65,7 +65,13 @@ export const userService = {
   async getUserStats(userId) {
     try {
       const response = await api.get(`/users/${userId}/stats`);
-      return response.data;
+      // Backend wraps result as { status, code, data: { ...stats } }
+      return response.data?.data || {
+        quizzesTaken: 0,
+        totalScore: 0,
+        averageScore: 0,
+        streak: 0,
+      };
     } catch (error) {
       console.error("Error fetching user stats:", error);
       // Return default stats if API fails
@@ -82,7 +88,8 @@ export const userService = {
   async getUserQuizHistory(userId) {
     try {
       const response = await api.get(`/users/${userId}/quizzes`);
-      return response.data;
+      // Backend wraps result as { status, code, data: [ ...history ] }
+      return response.data?.data || [];
     } catch (error) {
       console.error("Error fetching quiz history:", error);
       // Return empty array if API fails
