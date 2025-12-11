@@ -21,6 +21,17 @@ export const userService = {
     }
   },
 
+  // Update user profile in database
+  async updateUserProfile(userId, profileData) {
+    try {
+      const response = await api.put(`/users/${userId}`, profileData);
+      return response.data;
+    } catch (error) {
+      console.error("Error updating user profile:", error);
+      throw error;
+    }
+  },
+
   // Get complete user profile from database
   async getUserProfile(userId) {
     try {

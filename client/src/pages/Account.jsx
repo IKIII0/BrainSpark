@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { userService } from '../services/userService';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { toast } from 'react-hot-toast';
 
 const Account = () => {
   const { user, logout } = useAuth();
@@ -17,6 +18,16 @@ const Account = () => {
   });
   const [recentQuizzes, setRecentQuizzes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [editMode, setEditMode] = useState(false);
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [saveError, setSaveError] = useState('');
+  const [editForm, setEditForm] = useState({
+    nama_user: '',
+    email_user: '',
+    nim: '',
+    universitas: '',
+    no_hp: '',
+  });
 
   // Fetch user data from database
   useEffect(() => {
@@ -55,6 +66,76 @@ const Account = () => {
 
     fetchUserData();
   }, [user?.id]);
+
+  const handleEditChange = (field, value) => {
+    setEditForm((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleCancelEdit = () => {
+    // Reset form to current profile values
+    if (userProfile || user) {
+      setEditForm({
+        nama_user: userProfile?.nama_user || user?.name || '',
+        email_user: userProfile?.email_user || user?.email || '',
+        nim: userProfile?.nim || user?.nim || '',
+        universitas: userProfile?.universitas || user?.university || '',
+        no_hp: userProfile?.no_hp || user?.no_hp || '',
+      });
+    }
+    setSaveError('');
+    setEditMode(false);
+  };
+
+  const handleSaveProfile = async () => {
+    if (!userProfile && !user) return;
+
+    const userId = userProfile?.id || user?.id;
+    if (!userId) return;
+
+    setSavingProfile(true);
+    setSaveError('');
+
+    try {
+      const payload = {
+        nama_user: editForm.nama_user,
+        email_user: editForm.email_user,
+        nim: editForm.nim || null,
+        universitas: editForm.universitas || null,
+        no_hp: editForm.no_hp || null,
+      };
+
+      await userService.updateUserProfile(userId, payload);
+
+      // Refresh profile data after update
+      const refreshed = await userService.getUserProfile(userId);
+      setUserProfile(refreshed);
+
+      toast.success('Profil berhasil diperbarui');
+      setEditMode(false);
+    } catch (error) {
+      console.error('Error saving profile:', error);
+      setSaveError('Gagal menyimpan profil. Silakan coba lagi.');
+      toast.error('Gagal menyimpan profil. Silakan coba lagi.');
+    } finally {
+      setSavingProfile(false);
+    }
+  };
+
+  // Sync edit form with loaded profile/user data
+  useEffect(() => {
+    if (userProfile || user) {
+      setEditForm({
+        nama_user: userProfile?.nama_user || user?.name || '',
+        email_user: userProfile?.email_user || user?.email || '',
+        nim: userProfile?.nim || user?.nim || '',
+        universitas: userProfile?.universitas || user?.university || '',
+        no_hp: userProfile?.no_hp || user?.no_hp || '',
+      });
+    }
+  }, [userProfile, user]);
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('id-ID', {
@@ -128,7 +209,44 @@ const Account = () => {
           <div className="p-8">
             {activeTab === 'profile' && (
               <div className="space-y-6">
-                <h2 className="text-2xl font-bold text-quiz-dark">Informasi Profil</h2>
+                <div className="flex items-center justify-between">
+                  <h2 className="text-2xl font-bold text-quiz-dark">Informasi Profil</h2>
+                  {!loading && (
+                    <div className="flex items-center gap-3">
+                      {saveError && (
+                        <span className="text-sm text-red-500 mr-2">{saveError}</span>
+                      )}
+                      {!editMode ? (
+                        <button
+                          type="button"
+                          onClick={() => setEditMode(true)}
+                          className="px-4 py-2 text-sm font-medium text-white bg-quiz-blue rounded-lg hover:bg-blue-700"
+                        >
+                          Edit Profil
+                        </button>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={handleCancelEdit}
+                            className="px-3 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300"
+                            disabled={savingProfile}
+                          >
+                            Batal
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleSaveProfile}
+                            className="px-4 py-2 text-sm font-medium text-white bg-quiz-blue rounded-lg hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed"
+                            disabled={savingProfile}
+                          >
+                            {savingProfile ? 'Menyimpan...' : 'Simpan'}
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
                 {loading ? (
                   <div className="text-center py-8">
                     <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-quiz-blue"></div>
@@ -142,9 +260,10 @@ const Account = () => {
                       </label>
                       <input
                         type="text"
-                        value={userProfile?.nama_user || user?.name || ''}
+                        value={editForm.nama_user}
+                        onChange={(e) => handleEditChange('nama_user', e.target.value)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-quiz-blue focus:border-quiz-blue"
-                        readOnly
+                        readOnly={!editMode}
                       />
                     </div>
                     <div className="bg-quiz-light/30 p-6 rounded-lg">
@@ -153,9 +272,10 @@ const Account = () => {
                       </label>
                       <input
                         type="email"
-                        value={userProfile?.email_user || user?.email || ''}
+                        value={editForm.email_user}
+                        onChange={(e) => handleEditChange('email_user', e.target.value)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-quiz-blue focus:border-quiz-blue"
-                        readOnly
+                        readOnly={!editMode}
                       />
                     </div>
                     <div className="bg-quiz-light/30 p-6 rounded-lg">
@@ -164,9 +284,10 @@ const Account = () => {
                       </label>
                       <input
                         type="text"
-                        value={userProfile?.nim || user?.nim || ''}
+                        value={editForm.nim}
+                        onChange={(e) => handleEditChange('nim', e.target.value)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-quiz-blue focus:border-quiz-blue"
-                        readOnly
+                        readOnly={!editMode}
                       />
                       {!(userProfile?.nim || user?.nim) && (
                         <p className="text-sm text-gray-500 mt-2">NIM belum diisi</p>
@@ -178,9 +299,10 @@ const Account = () => {
                       </label>
                       <input 
                         type="text"
-                        value={userProfile?.universitas || user?.university || ''}
+                        value={editForm.universitas}
+                        onChange={(e) => handleEditChange('universitas', e.target.value)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-quiz-blue focus:border-quiz-blue"
-                        readOnly
+                        readOnly={!editMode}
                       />
                       {!(userProfile?.universitas || user?.university) && (
                         <p className="text-sm text-gray-500 mt-2">Universitas belum diisi</p>

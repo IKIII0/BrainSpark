@@ -17,6 +17,7 @@ export default function Register() {
   const [error, setError] = useState("");
   const [fieldError, setFieldError] = useState({});
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const { register, loginWithGoogle } = useAuth();
   const navigate = useNavigate();
@@ -63,6 +64,7 @@ export default function Register() {
   const handleGoogleRegister = async () => {
     setError("");
     setFieldError({});
+    setGoogleLoading(true);
 
     try {
       const result = await signInWithPopup(firebaseAuth, googleProvider);
@@ -79,10 +81,17 @@ export default function Register() {
         navigate("/ChooseQuiz", { replace: true });
       }
     } catch (err) {
+      if (err?.code === 'auth/cancelled-popup-request' || err?.code === 'auth/popup-closed-by-user') {
+        console.warn('Google register dibatalkan oleh user atau popup diganti:', err);
+        return;
+      }
+
       console.error("Google register error:", err);
       const message = err?.message || "Gagal daftar dengan Google. Silakan coba lagi.";
       setError(message);
       toast.error(message);
+    } finally {
+      setGoogleLoading(false);
     }
   };
 
@@ -241,19 +250,20 @@ export default function Register() {
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || googleLoading}
               className="mt-1 w-full px-3 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-semibold"
             >
-              {loading ? "Mendaftar..." : "Daftar"}
+              {loading || googleLoading ? "Mendaftar..." : "Daftar"}
             </button>
 
             <button
               type="button"
               onClick={handleGoogleRegister}
-              className="mt-2 flex items-center justify-center gap-2 py-2 px-3 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors w-full"
+              disabled={loading || googleLoading}
+              className="mt-2 flex items-center justify-center gap-2 py-2 px-3 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-60 disabled:cursor-not-allowed transition-colors w-full"
             >
               <img src="./google.svg" alt="google" className="w-5" />
-              <span className="ml-2 text-sm font-medium text-gray-700">Daftar dengan Google</span>
+              <span className="ml-2 text-sm font-medium text-gray-700">{googleLoading ? "Memproses..." : "Daftar dengan Google"}</span>
             </button>
           </div>
         </form>
