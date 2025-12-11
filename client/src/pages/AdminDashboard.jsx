@@ -16,6 +16,8 @@ const AdminDashboard = () => {
   const [error, setError] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
   const [showQuizForm, setShowQuizForm] = useState(false);
+  const [showEditForm, setShowEditForm] = useState(false);
+  const [editingMaterialId, setEditingMaterialId] = useState(null);
   const [selectedMateri, setSelectedMateri] = useState(null);
   const [quizzes, setQuizzes] = useState([]);
   const [quizLoading, setQuizLoading] = useState(false);
@@ -26,6 +28,12 @@ const AdminDashboard = () => {
     correct_answer: 0,
   });
   const [newMaterial, setNewMaterial] = useState({
+    title: '',
+    description: '',
+    level: 'Pemula',
+    questionsCount: 10,
+  });
+  const [editMaterial, setEditMaterial] = useState({
     title: '',
     description: '',
     level: 'Pemula',
@@ -64,6 +72,14 @@ const AdminDashboard = () => {
     setNewMaterial((prev) => ({
       ...prev,
       [name]: name === 'questionsCount' ? Number(value) || 0 : value
+    }));
+  };
+
+  const handleEditChange = (e) => {
+    const { name, value } = e.target;
+    setEditMaterial((prev) => ({
+      ...prev,
+      [name]: name === 'questionsCount' ? Number(value) || 0 : value,
     }));
   };
 
@@ -127,6 +143,64 @@ const AdminDashboard = () => {
       }
 
       toast.error(errorMessage);
+    }
+  };
+
+  const handleOpenEditMaterial = (material) => {
+    setShowAddForm(false);
+    setShowEditForm(true);
+    setEditingMaterialId(material.id);
+    setEditMaterial({
+      title: material.title || '',
+      description: material.description || '',
+      level: material.level || 'Pemula',
+      questionsCount: material.questionsCount ?? 10,
+    });
+  };
+
+  const handleUpdateMaterial = async (e) => {
+    e.preventDefault();
+
+    if (!editingMaterialId) return;
+
+    const trimmedTitle = editMaterial.title.trim();
+    if (!trimmedTitle) {
+      toast.error('Judul materi wajib diisi');
+      return;
+    }
+
+    try {
+      const payload = {
+        nama_materi: trimmedTitle,
+        level: editMaterial.level,
+        deskripsi: editMaterial.description,
+        jumlah_soal: editMaterial.questionsCount,
+      };
+
+      const response = await materiService.updateMateri(editingMaterialId, payload);
+
+      const updatedData = response?.data || response;
+
+      setMaterials((prev) =>
+        prev.map((m) =>
+          m.id === editingMaterialId
+            ? {
+                id: (updatedData.id ?? editingMaterialId).toString(),
+                title: updatedData.nama_materi ?? trimmedTitle,
+                description: updatedData.deskripsi ?? editMaterial.description,
+                level: updatedData.level ?? editMaterial.level,
+                questionsCount: updatedData.jumlah_soal ?? editMaterial.questionsCount,
+              }
+            : m
+        )
+      );
+
+      setShowEditForm(false);
+      setEditingMaterialId(null);
+      toast.success('Materi berhasil diupdate!');
+    } catch (error) {
+      console.error('Error updating materi:', error);
+      toast.error('Gagal mengupdate materi: ' + (error.response?.data?.message || error.message));
     }
   };
 
@@ -201,6 +275,14 @@ const AdminDashboard = () => {
     const trimmedQuestion = newQuiz.question.trim();
     if (!trimmedQuestion || !newQuiz.materi_id) {
       toast.error('Pertanyaan dan materi wajib diisi');
+      return;
+    }
+
+    const materiForQuiz = materials.find((m) => m.id === newQuiz.materi_id);
+    const maxQuestions = materiForQuiz?.questionsCount ?? null;
+
+    if (maxQuestions !== null && quizzes.length >= maxQuestions) {
+      toast.error(`Jumlah soal sudah mencapai batas untuk materi ini (${maxQuestions} soal).`);
       return;
     }
 
@@ -436,6 +518,88 @@ const AdminDashboard = () => {
           </div>
         )}
 
+        {/* Edit Material Form */}
+        {showEditForm && (
+          <div className="bg-white rounded-xl shadow-md p-6 mb-8">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">Edit Materi</h2>
+            <form onSubmit={handleUpdateMaterial} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Judul Materi <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="title"
+                    value={editMaterial.title}
+                    onChange={handleEditChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Contoh: Algoritma Dasar"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Level</label>
+                  <select
+                    name="level"
+                    value={editMaterial.level}
+                    onChange={handleEditChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                  >
+                    <option value="Pemula">Pemula</option>
+                    <option value="Menengah">Menengah</option>
+                    <option value="Lanjutan">Lanjutan</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Deskripsi</label>
+                <textarea
+                  name="description"
+                  value={editMaterial.description}
+                  onChange={handleEditChange}
+                  rows={3}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                  placeholder="Deskripsi singkat tentang materi ini"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Jumlah Soal</label>
+                <input
+                  type="number"
+                  name="questionsCount"
+                  min="1"
+                  max="100"
+                  value={editMaterial.questionsCount}
+                  onChange={handleEditChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+
+              <div className="flex justify-end space-x-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowEditForm(false);
+                    setEditingMaterialId(null);
+                  }}
+                  className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition-colors"
+                >
+                  Simpan Perubahan
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+
         {/* Materials List */}
         <div className="bg-white rounded-xl shadow-md overflow-hidden">
           <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
@@ -506,6 +670,15 @@ const AdminDashboard = () => {
                         {material.questionsCount} soal
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button
+                          onClick={() => handleOpenEditMaterial(material)}
+                          className="text-green-600 hover:text-green-900 inline-flex items-center space-x-1 mr-3"
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5h2m-1-1v2m-6 5h10m2 7H7a2 2 0 01-2-2V7a2 2 0 012-2h3l1 1h2l1-1h3a2 2 0 012 2v12a2 2 0 01-2 2z" />
+                          </svg>
+                          <span>Edit materi</span>
+                        </button>
                         <button
                           onClick={() => handleViewQuizzes(material.id)}
                           className="text-blue-600 hover:text-blue-900 inline-flex items-center space-x-1 mr-3"
@@ -628,7 +801,15 @@ const AdminDashboard = () => {
 
                 {/* Quiz List */}
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-800 mb-4">Daftar Soal ({quizzes.length})</h3>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                    {(() => {
+                      const materiForQuiz = materials.find((m) => m.id === selectedMateri);
+                      const maxQuestions = materiForQuiz?.questionsCount;
+                      return maxQuestions
+                        ? `Daftar Soal (${quizzes.length}/${maxQuestions})`
+                        : `Daftar Soal (${quizzes.length})`;
+                    })()}
+                  </h3>
                   {quizLoading ? (
                     <div className="flex justify-center items-center py-8">
                       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
