@@ -21,6 +21,70 @@ async function getAllAdmins(req, res) {
   }
 }
 
+async function createUserQuizResult(req, res) {
+  try {
+    const { id } = req.params;
+    const payload = req.body;
+
+    const created = await eventsService.createUserQuizResult(id, payload);
+
+    return res.status(201).json({
+      status: "success",
+      code: 201,
+      message: "Quiz result created",
+      data: created,
+    });
+  } catch (err) {
+    console.error("createUserQuizResult error:", err);
+    res.status(500).json({
+      status: "error",
+      code: 500,
+      message: err.message,
+    });
+  }
+}
+
+// User stats & history controllers
+async function getUserStats(req, res) {
+  try {
+    const { id } = req.params;
+    const stats = await eventsService.getUserStats(id);
+
+    return res.status(200).json({
+      status: "success",
+      code: 200,
+      data: stats,
+    });
+  } catch (err) {
+    console.error("getUserStats error:", err);
+    res.status(500).json({
+      status: "error",
+      code: 500,
+      message: err.message,
+    });
+  }
+}
+
+async function getUserQuizHistory(req, res) {
+  try {
+    const { id } = req.params;
+    const history = await eventsService.getUserQuizHistory(id);
+
+    return res.status(200).json({
+      status: "success",
+      code: 200,
+      data: history,
+    });
+  } catch (err) {
+    console.error("getUserQuizHistory error:", err);
+    res.status(500).json({
+      status: "error",
+      code: 500,
+      message: err.message,
+    });
+  }
+}
+
 async function loginWithGoogle(req, res) {
   try {
     const { idToken } = req.body;
@@ -591,6 +655,9 @@ module.exports = {
   deleteUser,
   login,
   loginWithGoogle,
+  getUserStats,
+  getUserQuizHistory,
+  createUserQuizResult,
   getAllMateri,
   getMateriById,
   createMateri,
