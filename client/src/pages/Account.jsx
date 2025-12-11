@@ -137,10 +137,13 @@ const Account = () => {
   }, [userProfile, user]);
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('id-ID', {
+    if (!dateString) return '-';
+    const d = new Date(dateString);
+    if (isNaN(d.getTime())) return '-';
+    return d.toLocaleDateString('id-ID', {
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
     });
   };
 
@@ -356,9 +359,9 @@ const Account = () => {
                     {recentQuizzes.map((quiz) => (
                       <div key={quiz.id} className="bg-gray-50 p-4 rounded-lg flex justify-between items-center">
                         <div>
-                          <h3 className="font-semibold text-quiz-dark">{quiz.title}</h3>
+                          <h3 className="font-semibold text-quiz-dark">{quiz.nama_materi}</h3>
                           <p className="text-gray-500 text-sm">
-                            {formatDate(quiz.date)}
+                            {formatDate(quiz.created_at)}
                           </p>
                         </div>
                         <div className="text-right">
