@@ -9,6 +9,7 @@ const {
   updateUser,
   deleteUser,
   login,
+  loginWithGoogle,
   getAllMateri,
   getMateriById,
   createMateri,
@@ -54,6 +55,7 @@ router.get("/activity-logs", isAdmin, getActivityLogs);
 
 // Auth Routes
 router.post("/login", login);
+router.post("/login/google", loginWithGoogle);
 
 // Test Routes (untuk debugging)
 router.get("/test-admin", async (req, res) => {
