@@ -107,7 +107,7 @@ async function getUserByEmail(email) {
 async function createUserFromGoogle({ email, name }) {
   const result = await pool.query(
     "INSERT INTO users (nama_user, email_user, pass, nim, universitas, no_hp) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *",
-    [name, email, null, null, null, null]
+    [name, email, "google-auth", null, null, null]
   );
   return result.rows[0];
 }
