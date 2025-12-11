@@ -12,6 +12,7 @@ export default function Login() {
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [fieldError, setFieldError] = useState({});
+  const [googleLoading, setGoogleLoading] = useState(false);
   
   const { login, loginWithGoogle, loading, isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -69,6 +70,7 @@ export default function Login() {
   const handleGoogleLogin = async () => {
     setError('');
     setSuccessMessage('');
+    setGoogleLoading(true);
 
     try {
       const result = await signInWithPopup(firebaseAuth, googleProvider);
@@ -83,10 +85,17 @@ export default function Login() {
         navigate('/ChooseQuiz', { replace: true });
       }
     } catch (err) {
+      if (err?.code === 'auth/cancelled-popup-request' || err?.code === 'auth/popup-closed-by-user') {
+        console.warn('Google login dibatalkan oleh user atau popup diganti:', err);
+        return;
+      }
+
       console.error('Google login error:', err);
       const msg = err?.message || 'Gagal masuk dengan Google. Coba lagi.';
       setError(msg);
       toast.error(msg);
+    } finally {
+      setGoogleLoading(false);
     }
   };
 
@@ -176,19 +185,20 @@ export default function Login() {
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || googleLoading}
               className="mt-1 w-full px-3 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-semibold"
             >
-              {loading ? 'Memproses...' : 'Masuk'}
+              {loading || googleLoading ? 'Memproses...' : 'Masuk'}
             </button>
 
             <button 
                 type="button" 
                 onClick={handleGoogleLogin}
-                className="flex items-center justify-center gap-2 py-2 px-3 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors"
+                disabled={loading || googleLoading}
+                className="flex items-center justify-center gap-2 py-2 px-3 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
             >
                 <img src="./google.svg" alt="google" className="w-5"/>
-                <span className="ml-2 text-sm font-medium text-gray-700">Masuk dengan Google</span>
+                <span className="ml-2 text-sm font-medium text-gray-700">{googleLoading ? 'Memproses...' : 'Masuk dengan Google'}</span>
             </button>
           </div>
         </form>
